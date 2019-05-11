@@ -10,7 +10,10 @@ using namespace std;
 class Network
 {
 public:
-    void signup_user();
+    void signup();
+    void login();
+    User* find_logged_in_user();
+    
 private:
     vector<User*> users;
     vector<Film*> films;
