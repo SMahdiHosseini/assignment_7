@@ -10,9 +10,9 @@ using namespace std;
 class Network
 {
 public:
-	
+    void signup_user();
 private:
-    vector<Publisher*> publishers;
+    vector<User*> users;
     vector<Film*> films;
     double cash;
 };

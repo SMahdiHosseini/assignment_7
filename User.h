@@ -5,6 +5,8 @@
 #include <vector>
 #include "Notification.h"
 #include "Network.h"
+#include "Publisher.h"
+#include "Film.h"
 
 using namespace std;
 
@@ -30,10 +32,9 @@ protected:
 	bool login;
 	bool publisher;
 	double cash;
-	vector<int> following_publishers_id;
-	vector<int> bought_films_id;
+	vector<Film*> bought_films;
 	vector<Notification> notifications; 
-	Network* network;
+	vector<Publisher*> following_publishers;
 };
 
 #endif
