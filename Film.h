@@ -17,9 +17,9 @@ private:
     int year;
     int id;
     int publihser_id;
-    double score;
-    double length;
-    double price;
+    int score;
+    int length;
+    int price;
     vector<Comment> comments;
 };
 
