@@ -18,6 +18,7 @@ public:
 	bool check_login();
 	bool check_publsher();
 	void logout();
+	void login_user();
 	void give_notification(Notification notification); 
 	void show_unread_notifications();
 	void show_notifications();

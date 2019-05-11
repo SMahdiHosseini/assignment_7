@@ -44,3 +44,8 @@ void User::logout()
 {
     login = false;
 }
+
+void User::login_user()
+{
+    login = true;
+}
