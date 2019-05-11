@@ -17,6 +17,7 @@ public:
 	int get_id();
 	bool check_login();
 	bool check_publsher();
+	void logout();
 	void give_notification(Notification notification); 
 	void show_unread_notifications();
 	void show_notifications();

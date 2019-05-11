@@ -39,3 +39,8 @@ bool User::check_publsher()
 {
     return publisher;
 }
+
+void User::logout()
+{
+    login = false;
+}
