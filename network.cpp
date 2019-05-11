@@ -18,6 +18,7 @@ User* Network::find_logged_in_user()
 
 void Network::signup(int id, string email, string username, string password, int age, bool publisher)
 {
+    find_logged_in_user()->logout();
     if(publisher)        
         add_publisher(id, email, username, password, age, publisher);
     User* new_user = new User(id,email, username, password, age, publisher);
