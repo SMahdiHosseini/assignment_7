@@ -37,6 +37,7 @@ protected:
 	bool login;
 	bool publisher;
 	int cash;
+	int age;
 	vector<Film*> bought_films;
 	vector<Notification> notifications; 
 	vector<Publisher*> following_publishers;
