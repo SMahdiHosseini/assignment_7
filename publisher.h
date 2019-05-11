@@ -7,7 +7,7 @@
 class Publisher : public User
 {
 public:
-    Publisher();
+    Publisher(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher);
     virtual void add_film(Film* new_film);
     virtual void edit_film(int film_id, Film* edited_film);
     virtual void delete_film(int film_id);
