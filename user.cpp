@@ -1,4 +1,4 @@
-#include "User.h"
+#include "user.h"
 
 #define DEFAULT_CASH 0
 using namespace std;
