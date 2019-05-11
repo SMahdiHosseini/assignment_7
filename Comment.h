@@ -3,14 +3,12 @@
 
 #include <iostream>
 
-using namespace std;
-
 class Comment
 {
 public:
 private:
     int id;
-    string content;
+    std::string content;
     Comment* reply;
 };
 

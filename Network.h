@@ -5,18 +5,15 @@
 #include "Publisher.h"
 #include "Film.h"
 
-using namespace std;
-
 class Network
 {
 public:
-    void signup(string email, string username, string password, int age, bool publisher);
-    void login(string username, string pasword);
+    void signup(std::string email, std::string username, std::string password, int age, bool publisher);
+    void login(std::string username, std::string pasword);
     User* find_logged_in_user();
-    
 private:
-    vector<User*> users;
-    vector<Film*> films;
+    std::vector<User*> users;
+    std::vector<Film*> films;
     int cash;
 };
 

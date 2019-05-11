@@ -3,15 +3,13 @@
 
 #include <iostream>
 
-using namespace std;
-
 class Notification
 {
 public:
     Notification();
     void show_massage();
 private:
-    string massage;
+    std::string massage;
     bool read;
 };
 
