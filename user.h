@@ -14,6 +14,7 @@ public:
 	User(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher);
 	std::string get_username();
 	std::string get_password();
+	std::string get_email();
 	int get_id();
 	bool check_login();
 	bool check_publsher();

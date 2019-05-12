@@ -26,6 +26,11 @@ string User::get_password()
     return password;
 }
 
+string User::get_email()
+{
+    return email;
+}
+
 int User::get_id()
 {
     return id;
@@ -54,4 +59,14 @@ void User::login_user()
 void User::add_film(Film* new_film)
 {
     throw Inaccessibility() ;
+}
+
+void User::delete_film(int film_id)
+{
+    throw Inaccessibility();
+}
+
+void User::show_followers()
+{
+    throw Inaccessibility();
 }
