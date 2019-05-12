@@ -23,3 +23,14 @@ void Publisher::delete_film(int film_id)
     throw Inaccessibility();
 }
 
+void Publisher::show_followers()
+{
+    cout << "List of Followers\n";
+    cout << "#. User Id | User Username | User Email\n";
+    for (int i = 0; i < follower_user.size(); i++)
+    {
+        cout << 1 << ". " << follower_user[i]->get_id() << " | ";
+        cout << follower_user[i]->get_username() << " | ";
+        cout << follower_user[i]->get_email() << endl;
+    }
+}
