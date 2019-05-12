@@ -7,14 +7,14 @@
 class Film
 {
 public:
-    Film();
+    Film(int _publisher_id, int _id, std::string _name, int _year, int _length, int price, std::string _suumary, std::string _director);
 private:
     std::string name;
     std::string summary;
     std::string director;
     int year;
     int id;
-    int publihser_id;
+    int publisher_id;
     int score;
     int length;
     int price;
