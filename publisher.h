@@ -19,7 +19,7 @@ public:
     virtual void delete_comment(int film_id, int comment_id);
 private:
     std::vector<User*> follower_user;
-    std::vector<Film*> published_films;
+    std::vector<Film*> publishered_films;
 };
 
 #endif

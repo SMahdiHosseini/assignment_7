@@ -1,4 +1,5 @@
 #include "user.h"
+#include "exceptions.h"
 
 #define DEFAULT_CASH 0
 using namespace std;
@@ -48,4 +49,9 @@ void User::logout()
 void User::login_user()
 {
     login = true;
+}
+
+void User::add_film(Film* new_film)
+{
+    throw Inaccessibility() ;
 }
