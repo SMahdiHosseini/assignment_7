@@ -61,5 +61,8 @@ void Network::edit_film(int film_id, map<string, string> edited_options)
 
 void Network::delete_film(int film_id)
 {
+    if(films->find_film_by_id(film_id) == nullptr)
+        throw NotFound();
     find_logged_in_user()->delete_film(film_id);
+    cout << "Ok";
 }
