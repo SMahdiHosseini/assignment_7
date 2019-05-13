@@ -5,49 +5,26 @@
 
 using namespace std;
 
-Network::Network()
-{
-    cash = DEFAULT_CASH;
-}
+Network::Network() {}
 
 User* Network::find_logged_in_user()
 {
-    for (int i = 0; i < users.size(); i++)
-        if (users[i]->check_login())
-            return users[i];
+    return users.find_logged_in_user();
 }
 
 bool Network::check_existed_user(string username)
 {
-    for (int i = 0; i < users.size(); i++)
-        if(users[i]->get_username() == username)
-            return true;
-    return false;
+    return users.check_existed_user(username);
 }
 
-void Network::signup(int id, string email, string username, string password, int age, bool publisher)
+void Network::signup(string email, string username, string password, int age, bool publisher)
 {
-    if(check_existed_user(username))
-        throw BadRequest();
-    find_logged_in_user()->logout();
-    if(publisher)        
-        add_publisher(id, email, username, password, age, publisher);
-    User* new_user = new User(id,email, username, password, age, publisher);
-    users.push_back(new_user);
-}
-
-void Network::add_publisher(int id, std::string email, std::string username, std::string password, int age, bool publisher)
-{
-    Publisher* new_publisher = new Publisher(id, email, username, password, age, publisher);
-    users.push_back(new_publisher);
+    users.signup(email, username, password, age, publisher);
 }
 
 User* Network::find_user(string username, string password)
 {
-    for (int i = 0; i < users.size(); i++)
-        if(users[i]->get_username() == username && users[i]->get_password() == password)
-            return users[i];
-    throw BadRequest();
+    users.find_user(username, password);
 }
 
 void Network::login(string username, string password)
