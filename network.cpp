@@ -71,3 +71,8 @@ void Network::show_followers()
 {
     find_logged_in_user()->show_followers();
 }
+
+void Network::get_money()
+{
+    find_logged_in_user()->get_money(cash[find_logged_in_user()->get_username]);
+}

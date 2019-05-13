@@ -70,3 +70,8 @@ void User::show_followers()
 {
     throw Inaccessibility();
 }
+
+void User::get_money(int money)
+{
+    throw Inaccessibility();
+}

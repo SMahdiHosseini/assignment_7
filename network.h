@@ -15,6 +15,9 @@ public:
     void login(std::string username, std::string pasword);
     void add_film(std::string name, int year, int length, int price, std::string summary, std::string director);
     void edit_film(int film_id, std::map<std::string, std::string> edited_options);
+    void delete_film(int film_id);
+    void show_followers();
+    void get_money();
     bool check_existed_user(std::string username);
     User* find_user(std::string username, std::string password);
     User* find_logged_in_user();
