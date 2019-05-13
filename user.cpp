@@ -75,3 +75,13 @@ void User::get_money(int money)
 {
     throw Inaccessibility();
 }
+
+void User::reply_commemt(int film_id, int comment_id, string comtent)
+{
+    throw Inaccessibility();
+}
+
+int User::find_film_index(int film_id)
+{
+    throw Inaccessibility();
+}

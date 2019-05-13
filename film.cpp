@@ -9,6 +9,7 @@
 using namespace std;
 
 Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int price, string _suumary, string _director)
+    : comments()
 {
     name = _name;
     summary = _suumary;
@@ -48,3 +49,7 @@ void Film::edit(map<string, string> edited_options)
         edit_fields(option.first, option.second);
 }
 
+void Film::reply_comment(int comment_id, string content)
+{
+    comments.find_comment_by_id(comment_id)->reply_content(content);
+}

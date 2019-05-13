@@ -18,6 +18,7 @@ public:
     void delete_film(int film_id);
     void show_followers();
     void get_money();
+    void reply_comment(int film_id, int comment_id, std::string content);
     bool check_existed_user(std::string username);
     User* find_user(std::string username, std::string password);
     User* find_logged_in_user();

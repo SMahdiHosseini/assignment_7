@@ -8,9 +8,10 @@ class CommentRepository
 {
 public:
     CommentRepository();
+    Comment* find_comment_by_id(int commetn_id);
 private:
     int last_id;
-    std::vector<Comment> comments;
+    std::vector<Comment*> comments;
 };
 
 #endif

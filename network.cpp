@@ -43,8 +43,9 @@ void Network::add_film(string name, int year, int length, int price, string summ
 {
     if(users->check_publisher())
     {
-        find_logged_in_user()->add_film(films->add_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
+        find_logged_in_user()->add_film(films->add_new_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
         cout << "Ok";
+        return;
     }
     throw Inaccessibility();
 }
@@ -55,6 +56,7 @@ void Network::edit_film(int film_id, map<string, string> edited_options)
     {
         films->edit_film(find_logged_in_user()->get_id(), film_id, edited_options);
         cout << "Ok";
+        return;
     }
     throw Inaccessibility();
 }
@@ -75,4 +77,10 @@ void Network::show_followers()
 void Network::get_money()
 {
     find_logged_in_user()->get_money(cash[find_logged_in_user()->get_username]);
+    cout << "Ok";
+}
+
+void Network::reply_comment(int film_id, int comment_id, std::string content)
+{
+    find_logged_in_user()->reply_commemt(film_id, comment_id, content);
 }

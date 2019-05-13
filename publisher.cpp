@@ -12,15 +12,12 @@ Publisher::Publisher(int _id, std::string _email, std::string _username, std::st
 
 void Publisher::add_film(Film* new_film)
 {
-    publishered_films.push_back(new_film);
+    published_films.push_back(new_film);
 }
 
 void Publisher::delete_film(int film_id)
 {
-    for (int i = 0; i < publishered_films.size(); i++)
-        if(publishered_films[i]->get_id() == film_id)
-            publishered_films.erase(publishered_films.begin() + i);
-    throw Inaccessibility();
+    published_films.erase(published_films.begin() + find_film_index(film_id));
 }
 
 void Publisher::show_followers()
@@ -38,4 +35,18 @@ void Publisher::show_followers()
 void Publisher::get_money(int money)
 {
     cash += money;
+}
+
+void Publisher::reply_commemt(int film_id, int comment_id, string content)
+{
+    published_films[find_film_index(film_id)]->reply_comment(comment_id, content);
+    
+}
+
+int Publisher::find_film_index(int film_id)
+{
+    for (int i = 0; i < published_films.size(); i++)
+        if(published_films[i]->get_id() == film_id)
+            return i;
+    throw Inaccessibility();
 }
