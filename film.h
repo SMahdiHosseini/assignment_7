@@ -3,11 +3,12 @@
 
 #include "publisher.h"
 #include "comment.h"
+#include "comment_repository.h"
 
 class Film
 {
 public:
-    Film(int _publisher_id, int _id, std::string _name, int _year, int _length, int price, std::string _suumary, std::string _director);
+    Film(int _publisher_id, int _id, std::string _name, int _year, int _length, int price, std::string _suumary, std::string _director) : comments();
     int get_id();
     std::string get_name();
     std::string get_summary();
@@ -30,7 +31,7 @@ private:
     double score;
     int length;
     int price;
-    std::vector<Comment> comments;
+    CommentRepository comments;
 };
 
 #endif
