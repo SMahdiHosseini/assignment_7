@@ -66,3 +66,8 @@ void Network::delete_film(int film_id)
     find_logged_in_user()->delete_film(film_id);
     cout << "Ok";
 }
+
+void Network::show_followers()
+{
+    find_logged_in_user()->show_followers();
+}
