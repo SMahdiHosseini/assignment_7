@@ -5,7 +5,11 @@
 
 using namespace std;
 
-Network::Network() {}
+Network::Network()
+{
+    users = new UserRepository(); 
+    films = new FilmRepository();
+}
 
 User* Network::find_logged_in_user()
 {
@@ -30,8 +34,8 @@ User* Network::find_user(string username, string password)
 
 void Network::login(string username, string password)
 {
-    find_logged_in_user()->logout();
     find_user(username, password)->login_user();
+    find_logged_in_user()->logout();
     cout << "OK";
 }
 
@@ -39,9 +43,23 @@ void Network::add_film(string name, int year, int length, int price, string summ
 {
     if(users->check_publisher())
     {
-        Film* new_film = films->add_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director);
-        find_logged_in_user()->add_film(new_film);
+        find_logged_in_user()->add_film(films->add_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
         cout << "Ok";
     }
     throw Inaccessibility();
+}
+
+void Network::edit_film(int film_id, map<string, string> edited_options)
+{
+    if(users->check_publisher())
+    {
+        films->edit_film(find_logged_in_user()->get_id(), film_id, edited_options);
+        cout << "Ok";
+    }
+    throw Inaccessibility();
+}
+
+void Network::delete_film(int film_id)
+{
+    find_logged_in_user()->delete_film(film_id);
 }
