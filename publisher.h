@@ -3,6 +3,7 @@
 
 #include "user.h"
 #include "film.h"
+#include "film_repository.h"
 
 class Publisher : public User
 {
@@ -10,7 +11,6 @@ public:
     Publisher(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher) 
     : User(_id, _email, _username, _password, _age, _publisher);
     virtual void add_film(Film* new_film);
-    virtual void edit_film(int film_id, Film* edited_film);
     virtual void delete_film(int film_id);
     virtual void show_followers();
     virtual void show_films();

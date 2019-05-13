@@ -34,3 +34,4 @@ void Publisher::show_followers()
         cout << follower_user[i]->get_email() << endl;
     }
 }
+

@@ -31,7 +31,6 @@ public:
 	void rate_film(Film* film, double score);
 	void comment_on_film(int film_id, std::string content);
 	virtual void add_film(Film* new_film);
-    virtual void edit_film(int film_id, Film* edited_film);
     virtual void delete_film(int film_id);
     virtual void show_followers();
     virtual void show_films();

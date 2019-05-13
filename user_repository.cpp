@@ -48,7 +48,9 @@ void UserRepository::add_publisher(string email, string username, string passwor
     users.push_back(new_publisher);
 }
 
-void UserRepository::login(std::string username, std::string pasword)
+bool UserRepository::check_publisher()
 {
-
+    if (find_logged_in_user()->check_publsher())
+        return true;
+    return false;
 }
