@@ -50,3 +50,8 @@ int Publisher::find_film_index(int film_id)
             return i;
     throw Inaccessibility();
 }
+
+void Publisher::delete_comment(int film_id, int comment_id)
+{
+    published_films[find_film_index(film_id)]->delete_comment(comment_id);
+}
