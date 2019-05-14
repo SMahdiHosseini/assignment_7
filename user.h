@@ -32,6 +32,7 @@ public:
 	void comment_on_film(int film_id, std::string content);
 	void send_follow_notification(Publisher* publisher);
 	void send_buy_notification(Publisher* publisher, Film* film);
+	void send_rate_notification(Publisher* publisher, Film* film);
 	virtual void add_follower(User* new_follower);
 	virtual void delete_comment(int film_id, int comment_id);
 	virtual int find_film_index(int film_id);

@@ -51,9 +51,18 @@ void User::rate_film(int film_id, int score)
 {
     if(bought_films.check_film_exists(film_id))
     {
-        bought_films.find_film_by_id(film_id)->set_rate(score);
+        Film* film = bought_films.find_film_by_id(film_id); 
+        film->set_rate(score);
+        send_rate_notification(following_publishers.find_publisher_by_id(film->get_publisher_id) , film);
     }
     throw BadRequest();
+}
+
+void User::send_rate_notification(Publisher* publisher, Film* film)
+{
+    Notification new_notif("User " + username + " width id " + to_string(id) + 
+        " rate your film " + film->get_name() + " width id " + to_string(film->get_id()) + ".");
+    publisher->give_notification(new_notif);
 }
 
 void User::increase_money(int amount)
