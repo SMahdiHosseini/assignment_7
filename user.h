@@ -25,14 +25,14 @@ public:
 	void show_notifications();
 	void show_bought_films();
 	void follow_publisher(Publisher* new_pubisher);
-	void increas_money(double amount);
+	void increase_money(double amount);
 	void search_film(Film* film);
 	void buy_film(Film* new_film);
 	void rate_film(Film* film, double score);
 	void comment_on_film(int film_id, std::string content);
+	void send_follow_notification(Publisher* publisher);
 	virtual void add_follower(User* new_follower);
 	virtual void delete_comment(int film_id, int comment_id);
-	virtual void sent_reply_comment_notif(int film_id, int comment_id);
 	virtual int find_film_index(int film_id);
 	virtual void add_film(Film* new_film);
     virtual void delete_film(int film_id);

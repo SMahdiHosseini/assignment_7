@@ -19,6 +19,13 @@ User::User(int _id, std::string _email, std::string _username, std::string _pass
 void User::follow_publisher(Publisher* new_publisher)
 {
     following_publishers.push_back(new_publisher);
+    send_follow_notification(new_publisher);
+}
+
+void User::send_follow_notification(Publisher* publisher)
+{
+    Notification new_notif("User " + username + " width id " + to_string(id) + " follow you");
+    publisher->give_notification(new_notif);
 }
 
 string User::get_username()
