@@ -85,3 +85,9 @@ void Network::delete_comment(int film_id, int comment_id)
     find_logged_in_user()->delete_comment(film_id, comment_id);
     cout << "Ok";
 }
+
+void Network::follow(int publisher_id)
+{
+    users->follow_publisher(publisher_id);
+    cout << "Ok";
+}

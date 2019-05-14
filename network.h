@@ -16,6 +16,7 @@ public:
     void add_film(std::string name, int year, int length, int price, std::string summary, std::string director);
     void edit_film(int film_id, std::map<std::string, std::string> edited_options);
     void delete_film(int film_id);
+    void follow(int publisher_id);
     void show_followers();
     void get_money();
     void reply_comment(int film_id, int comment_id, std::string content);
