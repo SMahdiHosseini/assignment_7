@@ -20,6 +20,7 @@ public:
     void buy_film(int film_id);
     void show_followers();
     void get_money();
+    void rate_film(int film_id, int score);
     void increase_money(int amount);
     void reply_comment(int film_id, int comment_id, std::string content);
     void delete_comment(int film_id, int comment_id);

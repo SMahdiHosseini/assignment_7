@@ -96,4 +96,11 @@ void Network::buy_film(int film_id)
 {
     Film* film = films->find_film_by_id(film_id);
     find_logged_in_user()->buy_film(film, users->find_publisher_by_id(film->get_publisher_id()));
+    cout << "Ok";
+}
+
+void Network::rate_film(int film_id, int score)
+{
+    find_logged_in_user()->rate_film(film_id, score);
+    cout << "Ok";
 }
