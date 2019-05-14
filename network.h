@@ -21,7 +21,6 @@ public:
     void reply_comment(int film_id, int comment_id, std::string content);
     void delete_comment(int film_id, int comment_id);
     bool check_existed_user(std::string username);
-    User* find_user(std::string username, std::string password);
     User* find_logged_in_user();
 private:
     UserRepository* users;    

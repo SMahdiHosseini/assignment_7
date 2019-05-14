@@ -27,11 +27,6 @@ void Network::signup(string email, string username, string password, int age, bo
     cout << "OK";
 }
 
-User* Network::find_user(string username, string password)
-{
-    users->find_user(username, password);
-}
-
 void Network::login(string username, string password)
 {
     users->login(username, password);
