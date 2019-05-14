@@ -24,7 +24,7 @@ public:
 	void show_unread_notifications();
 	void show_notifications();
 	void show_bought_films();
-	void folow_publisher(int publisher_id);
+	void folow_publisher(Publisher* new_pubisher);
 	void increas_money(double amount);
 	void search_film(Film* film);
 	void buy_film(Film* new_film);

@@ -16,6 +16,11 @@ User::User(int _id, std::string _email, std::string _username, std::string _pass
     cash = DEFAULT_CASH;
 }
 
+void User::folow_publisher(Publisher* new_publisher)
+{
+    following_publishers.push_back(new_publisher);
+}
+
 string User::get_username()
 {
     return username;
@@ -90,3 +95,4 @@ void User::delete_comment(int film_id, int comment_id)
 {
     throw Inaccessibility();
 }
+
