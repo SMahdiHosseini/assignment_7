@@ -34,6 +34,19 @@ void User::give_notification(Notification notification)
     notifications.push_back(notification);
 }
 
+void User::buy_film(Film* new_film, Publisher* publisher)
+{
+    bought_films.push_back(new_film);
+    send_buy_notification(publisher, new_film);
+}
+
+void User::send_buy_notification(Publisher* publisher, Film* film)
+{
+    Notification new_notif("User " + username + " width id " + to_string(id) + 
+        " buy your film " + film->get_name() + " width id " + to_string(film->get_id()) + ".");
+    publisher->give_notification(new_notif);
+}
+
 void User::increase_money(int amount)
 {
     cash += amount;
