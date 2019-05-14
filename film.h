@@ -20,6 +20,7 @@ public:
     int get_price();
     int get_publisher_id();
     double get_rate();
+    void delete_comment(int comment_id);
     void reply_comment(int comment_id, std::string content, Notification notification);
     void edit(std::map<std::string, std::string> edited_options);
     void edit_fields(std::string key, std::string value);

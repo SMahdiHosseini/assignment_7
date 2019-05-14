@@ -53,3 +53,8 @@ void Film::reply_comment(int comment_id, string content, Notification notificati
 {
     comments.find_comment_by_id(comment_id)->reply_content(content, notificatioin);
 }
+
+void Film::delete_comment(int comment_id)
+{
+    comments.delete_comment(comment_id);
+}
