@@ -19,7 +19,8 @@ public:
     int get_length();
     int get_price();
     int get_publisher_id();
-    double get_rate();
+    int get_rate();
+    void set_rate(int score);
     void delete_comment(int comment_id);
     void reply_comment(int comment_id, std::string content, Notification notification);
     void edit(std::map<std::string, std::string> edited_options);
@@ -31,7 +32,7 @@ private:
     int year;
     int id;
     int publisher_id;
-    double score;
+    int score;
     int length;
     int price;
     CommentRepository comments;

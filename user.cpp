@@ -19,7 +19,7 @@ User::User(int _id, std::string _email, std::string _username, std::string _pass
 
 void User::follow_publisher(Publisher* new_publisher)
 {
-    following_publishers.push_back(new_publisher);
+    following_publishers.add_existed_publisher(new_publisher);
     send_follow_notification(new_publisher);
 }
 
@@ -47,7 +47,15 @@ void User::send_buy_notification(Publisher* publisher, Film* film)
     publisher->give_notification(new_notif);
 }
 
-// void User::rate_film()
+void User::rate_film(int film_id, int score)
+{
+    if(bought_films.check_film_exists(film_id))
+    {
+        bought_films.find_film_by_id(film_id)->set_rate(score);
+    }
+    throw BadRequest();
+}
+
 void User::increase_money(int amount)
 {
     cash += amount;

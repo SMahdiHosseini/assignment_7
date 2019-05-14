@@ -8,7 +8,7 @@
 
 using namespace std;
 
-Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int price, string _suumary, string _director)
+Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int _price, string _suumary, string _director)
     : comments()
 {
     name = _name;
@@ -17,6 +17,9 @@ Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int
     year = _year;
     id = _id;
     publisher_id = _publisher_id;
+    length = _length;
+    price = _price;
+    score = 0;
 }
 
 int Film::get_id()
@@ -57,4 +60,9 @@ void Film::reply_comment(int comment_id, string content, Notification notificati
 void Film::delete_comment(int comment_id)
 {
     comments.delete_comment(comment_id);
+}
+
+void Film::set_rate(int new_score)
+{
+    score = (score + new_score) / 2;
 }

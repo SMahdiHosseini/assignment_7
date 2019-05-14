@@ -83,3 +83,9 @@ void UserRepository::buy_film(Film* film, Publisher* publisher)
 {
     find_logged_in_user()->buy_film(film, publisher);
 }
+
+void UserRepository::add_existed_publisher(Publisher* publisher)
+{
+    if(check_existed_user(publisher->get_username()))
+        users.push_back(publisher); 
+}
