@@ -34,8 +34,7 @@ User* Network::find_user(string username, string password)
 
 void Network::login(string username, string password)
 {
-    find_user(username, password)->login_user();
-    find_logged_in_user()->logout();
+    users->login(username, password);
     cout << "OK";
 }
 

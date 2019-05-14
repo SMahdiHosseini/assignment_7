@@ -21,7 +21,7 @@ User* UserRepository::find_user(string username, string password)
     for (int i = 0; i < users.size(); i++)
         if(users[i]->get_username() == username && users[i]->get_password() == password)
             return users[i];
-    throw BadRequest();
+    return nullptr;
 }
 
 User* UserRepository::find_logged_in_user()
@@ -42,6 +42,7 @@ void UserRepository::signup(string email, string username, string password, int 
     User* new_user = new User(last_id,email, username, password, age, publisher);
     users.push_back(new_user);
 }
+
 void UserRepository::add_publisher(string email, string username, string password, int age, bool publisher)
 {
     Publisher* new_publisher = new Publisher(last_id, email, username, password, age, publisher);
@@ -53,4 +54,12 @@ bool UserRepository::check_publisher()
     if (find_logged_in_user()->check_publsher())
         return true;
     return false;
+}
+
+void UserRepository::login(string username, string password)
+{
+    if(find_user(username, password) == nullptr)
+        throw BadRequest();
+    find_logged_in_user()->logout();
+    find_user(username, password)->login_user();
 }
