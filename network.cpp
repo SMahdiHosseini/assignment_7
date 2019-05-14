@@ -91,3 +91,8 @@ void Network::follow(int publisher_id)
     users->follow_publisher(publisher_id);
     cout << "Ok";
 }
+
+void Network::increase_money(int amount)
+{
+    find_logged_in_user()->increase_money(amount);
+}

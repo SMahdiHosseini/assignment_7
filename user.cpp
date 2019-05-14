@@ -2,6 +2,7 @@
 #include "exceptions.h"
 
 #define DEFAULT_CASH 0
+
 using namespace std;
 
 User::User(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher)
@@ -31,6 +32,11 @@ void User::send_follow_notification(Publisher* publisher)
 void User::give_notification(Notification notification)
 {
     notifications.push_back(notification);
+}
+
+void User::increase_money(int amount)
+{
+    cash += amount;
 }
 
 string User::get_username()

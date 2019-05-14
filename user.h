@@ -25,7 +25,7 @@ public:
 	void show_notifications();
 	void show_bought_films();
 	void follow_publisher(Publisher* new_pubisher);
-	void increase_money(double amount);
+	void increase_money(int amount);
 	void search_film(Film* film);
 	void buy_film(Film* new_film);
 	void rate_film(Film* film, double score);
