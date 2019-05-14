@@ -6,8 +6,9 @@
 class Notification
 {
 public:
-    Notification();
+    Notification(std::string _massage);
     void show_massage();
+    void read_massage();
 private:
     std::string massage;
     bool read;

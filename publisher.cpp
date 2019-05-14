@@ -39,8 +39,8 @@ void Publisher::get_money(int money)
 
 void Publisher::reply_commemt(int film_id, int comment_id, string content)
 {
-    published_films[find_film_index(film_id)]->reply_comment(comment_id, content);
-    
+    Notification new_notif("Publisher " + username + " width id " + to_string(id) + " reply to your comment.");
+    published_films[find_film_index(film_id)]->reply_comment(comment_id, content, new_notif);
 }
 
 int Publisher::find_film_index(int film_id)

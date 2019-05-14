@@ -49,7 +49,7 @@ void Film::edit(map<string, string> edited_options)
         edit_fields(option.first, option.second);
 }
 
-void Film::reply_comment(int comment_id, string content)
+void Film::reply_comment(int comment_id, string content, Notification notificatioin)
 {
-    comments.find_comment_by_id(comment_id)->reply_content(content);
+    comments.find_comment_by_id(comment_id)->reply_content(content, notificatioin);
 }

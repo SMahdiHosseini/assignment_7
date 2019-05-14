@@ -3,6 +3,7 @@
 
 #include "publisher.h"
 #include "comment.h"
+#include "notification.h"
 #include "comment_repository.h"
 
 class Film
@@ -19,7 +20,7 @@ public:
     int get_price();
     int get_publisher_id();
     double get_rate();
-    void reply_comment(int comment_id, std::string content);
+    void reply_comment(int comment_id, std::string content, Notification notification);
     void edit(std::map<std::string, std::string> edited_options);
     void edit_fields(std::string key, std::string value);
 private:
