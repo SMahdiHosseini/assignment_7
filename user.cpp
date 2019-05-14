@@ -36,7 +36,7 @@ void User::give_notification(Notification notification)
 
 void User::buy_film(Film* new_film, Publisher* publisher)
 {
-    bought_films.push_back(new_film);
+    bought_films.add_film(new_film);
     send_buy_notification(publisher, new_film);
 }
 
@@ -47,6 +47,7 @@ void User::send_buy_notification(Publisher* publisher, Film* film)
     publisher->give_notification(new_notif);
 }
 
+// void User::rate_film()
 void User::increase_money(int amount)
 {
     cash += amount;

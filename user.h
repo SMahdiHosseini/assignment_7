@@ -28,7 +28,7 @@ public:
 	void increase_money(int amount);
 	void search_film(Film* film);
 	void buy_film(Film* new_film, Publisher* publisher);
-	void rate_film(Film* film, double score);
+	void rate_film(Film* film, int score);
 	void comment_on_film(int film_id, std::string content);
 	void send_follow_notification(Publisher* publisher);
 	void send_buy_notification(Publisher* publisher, Film* film);
@@ -51,7 +51,7 @@ protected:
 	bool publisher;
 	int cash;
 	int age;
-	std::vector<Film*> bought_films;
+	FilmRepository bought_films;
 	std::vector<Notification> notifications; 
 	std::vector<Publisher*> following_publishers;
 };
