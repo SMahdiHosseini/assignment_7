@@ -10,6 +10,7 @@ class Publisher : public User
 public:
     Publisher(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher) 
     : User(_id, _email, _username, _password, _age, _publisher);
+    virtual void add_follower(User* new_follower);
     virtual void sent_reply_comment_notif(int film_id, int comment_id);
     virtual int find_film_index(int film_id);
     virtual void add_film(Film* new_film);

@@ -55,3 +55,8 @@ void Publisher::delete_comment(int film_id, int comment_id)
 {
     published_films[find_film_index(film_id)]->delete_comment(comment_id);
 }
+
+void Publisher::add_follower(User* new_follower)
+{
+    follower_user.push_back(new_follower);
+}
