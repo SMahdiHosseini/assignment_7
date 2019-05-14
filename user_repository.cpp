@@ -63,3 +63,15 @@ void UserRepository::login(string username, string password)
     find_logged_in_user()->logout();
     find_user(username, password)->login_user();
 }
+
+// void UserRepository::follow_publisher(int publisher_id)
+// {
+
+// }
+
+User* UserRepository::find_user_by_id(int user_id)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_id() == user_id)
+            return users[i];
+}
