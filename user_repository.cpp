@@ -64,14 +64,17 @@ void UserRepository::login(string username, string password)
     find_user(username, password)->login_user();
 }
 
-// void UserRepository::follow_publisher(int publisher_id)
-// {
+void UserRepository::follow_publisher(int publisher_id)
+{
+    Publisher* publisher = find_publisher_by_id(publisher_id);
+    publisher->add_follower(find_logged_in_user());
+    find_logged_in_user()->follow_publisher(publisher);
+}
 
-// }
-
-User* UserRepository::find_user_by_id(int user_id)
+Publisher* UserRepository::find_publisher_by_id(int publisher_id)
 {
     for (int i = 0; i < users.size(); i++)
-        if(users[i]->get_id() == user_id)
-            return users[i];
+        if(users[i]->get_id() == publisher_id && users[i]->check_publsher())
+            return (Publisher*)users[i];
+    throw BadRequest();
 }

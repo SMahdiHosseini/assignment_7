@@ -14,6 +14,7 @@ public:
     void login(std::string username, std::string pasword);
     bool check_existed_user(std::string username);
     bool check_publisher();
+    Publisher* find_publisher_by_id(int user_id);
     User* find_user(std::string username, std::string password);
     User* find_logged_in_user();
 private:
