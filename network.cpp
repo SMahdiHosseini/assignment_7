@@ -83,4 +83,11 @@ void Network::get_money()
 void Network::reply_comment(int film_id, int comment_id, std::string content)
 {
     find_logged_in_user()->reply_commemt(film_id, comment_id, content);
+    cout << "Ok";
+}
+
+void Network::delete_comment(int film_id, int comment_id)
+{
+    find_logged_in_user()->delete_comment(film_id, comment_id);
+    cout << "Ok";
 }
