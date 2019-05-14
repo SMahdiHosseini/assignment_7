@@ -85,3 +85,8 @@ int User::find_film_index(int film_id)
 {
     throw Inaccessibility();
 }
+
+void User::delete_comment(int film_id, int comment_id)
+{
+    throw Inaccessibility();
+}

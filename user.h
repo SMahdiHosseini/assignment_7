@@ -30,6 +30,8 @@ public:
 	void buy_film(Film* new_film);
 	void rate_film(Film* film, double score);
 	void comment_on_film(int film_id, std::string content);
+	virtual void delete_comment(int film_id, int comment_id);
+	virtual void sent_reply_comment_notif(int film_id, int comment_id);
 	virtual int find_film_index(int film_id);
 	virtual void add_film(Film* new_film);
     virtual void delete_film(int film_id);
