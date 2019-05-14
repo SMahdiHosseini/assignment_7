@@ -78,3 +78,8 @@ Publisher* UserRepository::find_publisher_by_id(int publisher_id)
             return (Publisher*)users[i];
     throw BadRequest();
 }
+
+void UserRepository::buy_film(Film* film, Publisher* publisher)
+{
+    find_logged_in_user()->buy_film(film, publisher);
+}
