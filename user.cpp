@@ -28,6 +28,11 @@ void User::send_follow_notification(Publisher* publisher)
     publisher->give_notification(new_notif);
 }
 
+void User::give_notification(Notification notification)
+{
+    notifications.push_back(notification);
+}
+
 string User::get_username()
 {
     return username;
