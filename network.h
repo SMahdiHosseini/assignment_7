@@ -17,6 +17,7 @@ public:
     void edit_film(int film_id, std::map<std::string, std::string> edited_options);
     void delete_film(int film_id);
     void follow(int publisher_id);
+    void buy_film(int film_id);
     void show_followers();
     void get_money();
     void increase_money(int amount);

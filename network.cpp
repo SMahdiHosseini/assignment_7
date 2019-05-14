@@ -35,13 +35,8 @@ void Network::login(string username, string password)
 
 void Network::add_film(string name, int year, int length, int price, string summary, string director)
 {
-    if(users->check_publisher())
-    {
-        find_logged_in_user()->add_film(films->add_new_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
-        cout << "Ok";
-        return;
-    }
-    throw Inaccessibility();
+    find_logged_in_user()->add_film(films->add_new_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
+    cout << "Ok";
 }
 
 void Network::edit_film(int film_id, map<string, string> edited_options)
@@ -95,4 +90,10 @@ void Network::follow(int publisher_id)
 void Network::increase_money(int amount)
 {
     find_logged_in_user()->increase_money(amount);
+}
+
+void Network::buy_film(int film_id)
+{
+    Film* film = films->find_film_by_id(film_id);
+    find_logged_in_user()->buy_film(film, users->find_publisher_by_id(film->get_publisher_id()));
 }
