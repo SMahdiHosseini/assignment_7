@@ -13,9 +13,13 @@ public:
     CommandHandler() { };
     void run();
     string_list split_string(std::string input);
-    void detect_instruction(string_list input);
+    void detect_instruction_methode(string_list input);
+    void post_methode_instructions(string_list input);
+    void get_methode_instructions(string_list input);
+    void put_methode_instructions(string_list input);
+    void delete_methode_instructions(string_list input);
 private:
-    Network* nework;
+    Network* network;
 };
 
 #endif
