@@ -1,6 +1,24 @@
-class NotFound {};
+#ifndef EXCEPTION_H
+#define EXCEPTION_H
 
-class BadRequest {};
+#include <iostream>
 
-class Inaccessibility {};
+class NotFound  : public std::exception
+{
+public:
+    virtual std::string what();
+};
 
+class BadRequest : public std::exception
+{
+public:
+    virtual std::string what();
+};
+
+class Inaccessibility : public std::exception
+{
+public:
+    virtual std::string what();
+};
+
+#endif
