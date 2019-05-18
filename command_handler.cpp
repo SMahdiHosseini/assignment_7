@@ -4,6 +4,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>   
+#include <map>
 
 using namespace std;
 
@@ -73,25 +74,51 @@ void CommandHandler::post_methode_instructions()
 {
     if(input[INSTRUCTION_ACTION_INDEX] == SIGNUP)
         signup();
+    if(input[INSTRUCTION_ACTION_INDEX] == LOGIN)
+        login();
+    if(input[INSTRUCTION_ACTION_INDEX] == POST_FILM)
+        add_film();
 }
 
 void CommandHandler::signup()
 {
-
-    int username_index = find_index("username");
-    int pass_index = find_index("password");
-    int age_index = find_index("age");
-    int publisher_index = find_index("publisher");
-    int email_index = find_index("email");
-    if(valid.signup_validity(input[age_index + 1], input[email_index + 1], input[publisher_index + 1]))
+    map<string, string> elements;
+    elements[USERNAME] = input[find_index(USERNAME) + 1];
+    elements[PASS] = input[find_index(PASS) + 1];
+    elements[AGE] = input[find_index(AGE) + 1];
+    elements[PUBLISHER] = input[find_index(PUBLISHER) + 1];
+    elements[EMAIL] = input[find_index(EMAIL) + 1];
+    if(valid.signup_validity(elements))
     {
-        network->signup(input[email_index + 1], input[username_index + 1], 
-                        input[pass_index + 1], stoi(input[age_index + 1]), 
-                        check_publisher(input[publisher_index + 1]));
+        network->signup(elements[EMAIL], elements[USERNAME], elements[PASS], 
+                        stoi(elements[AGE]), check_publisher(elements[PUBLISHER]));
     }
     else
         throw BadRequest();
-    
+}
+
+void CommandHandler::login()
+{
+    map<string, string> elements;
+    elements[USERNAME] = input[find_index(USERNAME)];
+    elements[PASS] = input[find_index(PASS)];
+    if(valid.login_validity(elements))
+        network->login(elements[USERNAME], elements[PASS]);
+}
+
+void CommandHandler::add_film()
+{
+    map<string, string> elements;
+    elements[NAME] = input[find_index(NAME) + 1];
+    elements[YEAR] = input[find_index(YEAR) + 1];
+    elements[LENGTH] = input[find_index(LENGTH) + 1];
+    elements[PRICE] = input[find_index(PRICE) + 1];
+    elements[SUMMARY] = input[find_index(SUMMARY) + 1];
+    elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(valid.add_film_validity(elements))
+        network->add_film(elements[NAME], stoi(elements[YEAR]),
+                            stoi(elements[LENGTH]), stoi(elements[PRICE]),
+                            elements[SUMMARY], elements[DIRECTOR]);
 }
 
 int CommandHandler::find_index(string key)

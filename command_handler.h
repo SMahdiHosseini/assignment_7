@@ -3,14 +3,16 @@
 
 #include <iostream>
 #include <vector>
+#include "definitions.h"
 #include "network.h"
+#include "validity.h"
 
 typedef std::vector<std::string> string_list;
 
 class CommandHandler
 {
 public:
-    CommandHandler() { };
+    CommandHandler();
     string_list split_string(std::string input);
     void run();
     void detect_instruction_methode();
@@ -19,13 +21,14 @@ public:
     void put_methode_instructions();
     void delete_methode_instructions();
     void signup();
-    bool check_integer(string integer);
-    bool check_email(string email);
-    bool check_publisher(string input);
+    void login();
+    void add_film();
     int find_index(std::string key);
+    bool check_publisher(std::string publisher);
 private:
     Network* network;
     string_list input;
+    Validity valid;
 };
 
 #endif
