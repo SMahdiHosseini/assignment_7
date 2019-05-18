@@ -25,3 +25,10 @@ bool Validity::check_email(string email)
         return false;
     return true;
 }
+
+bool Validity::check_publisher(string publisher)
+{
+    if(publisher == "true" || publisher == "false")
+        return true;
+    return false;
+}
