@@ -1,30 +1,22 @@
 #include "command_handler.h"
 #include "exceptions.h"
+#include "definitions.h"
 #include <iostream>
 #include <iterator>
 #include <sstream>
 #include <vector>   
 
-#define INSTRUCTION_TYPE_INDEX 0
-#define INSTRUCTION_ACTION_INDEX 1
-#define INSTRUCTION_SEPERATOR_INDEX 2
-#define POST "POST"
-#define DELETE "DELETE"
-#define GET "GET"
-#define PUT "PUT"
-#define SEPERATOR "?"
-#define SIGNUP "signup"
-
 using namespace std;
 
 void CommandHandler::run()
 {
-    string input;
-    while (getline(cin, input))
+    string input_string;
+    while (getline(cin, input_string))
     {
         try
         {
-            detect_instruction_methode(split_string(input));   
+            input = split_string(input_string);
+            detect_instruction_methode();   
         }
         catch(BadRequest& e)
         {
@@ -48,27 +40,43 @@ string_list CommandHandler::split_string(string input)
             istream_iterator<string>());
 }
 
-void CommandHandler::detect_instruction_methode(string_list input)
+void CommandHandler::detect_instruction_methode()
 {
     if(input[INSTRUCTION_TYPE_INDEX] == POST)
     {
-        post_methode_instructions(input);
+        post_methode_instructions();
         return;
     }
     if(input[INSTRUCTION_TYPE_INDEX] == GET)
     {
-        get_methode_instructions(input);
+        get_methode_instructions();
         return;
     }
     if(input[INSTRUCTION_TYPE_INDEX] == PUT)
     {
-        put_methode_instructions(input);
+        put_methode_instructions();
         return;
     }
     if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
     {
-        delete_methode_instructions(input);
+        delete_methode_instructions();
         return;
     }
     throw BadRequest();
+}
+
+void CommandHandler::post_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == SIGNUP)
+    {
+
+    }
+}
+
+int CommandHandler::find_index(string key)
+{
+    for (int i = 0; i < input.size(); i++)
+        if(input[i] == key)
+            return i;
+    return INSTRUCTION_ACTION_INDEX;
 }
