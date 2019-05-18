@@ -20,6 +20,7 @@ Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int
     length = _length;
     price = _price;
     score = 0;
+    rate_count = 0;
 }
 
 int Film::get_id()
@@ -30,6 +31,11 @@ int Film::get_id()
 int Film::get_publisher_id()
 {
     return publisher_id;
+}
+
+string Film::get_name()
+{
+    return name;
 }
 
 void Film::edit_fields(string key, string value)
@@ -52,9 +58,9 @@ void Film::edit(map<string, string> edited_options)
         edit_fields(option.first, option.second);
 }
 
-void Film::reply_comment(int comment_id, string content, Notification notificatioin)
+void Film::reply_comment(int comment_id, string content)
 {
-    comments.find_comment_by_id(comment_id)->reply_content(content, notificatioin);
+    comments.find_comment_by_id(comment_id)->reply_content(content);
 }
 
 void Film::delete_comment(int comment_id)
@@ -64,5 +70,11 @@ void Film::delete_comment(int comment_id)
 
 void Film::set_rate(int new_score)
 {
-    score = (score + new_score) / 2;
+    score = (score * rate_count + new_score) / (rate_count + 1);
+    rate_count++;
+}
+
+int Film::find_user_id_width_comment_id(int comment_id)
+{
+    return comments.find_user_id_width_comment_id(comment_id);
 }

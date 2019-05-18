@@ -106,6 +106,11 @@ void CommandHandler::login()
         network->login(elements[USERNAME], elements[PASS]);
 }
 
+void CommandHandler::post_money()
+{
+    network->get_money();
+}
+
 void CommandHandler::add_film()
 {
     map<string, string> elements;

@@ -15,6 +15,7 @@ public:
     CommandHandler();
     string_list split_string(std::string input);
     void run();
+    void post_money();
     void detect_instruction_methode();
     void post_methode_instructions();
     void get_methode_instructions();
