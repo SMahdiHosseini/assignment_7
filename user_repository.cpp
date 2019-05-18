@@ -1,5 +1,7 @@
 #include "user_repository.h"
 #include "exceptions.h"
+#include "user.h"
+#include "publisher.h"
 
 using namespace std;
 
@@ -29,6 +31,7 @@ User* UserRepository::find_logged_in_user()
     for (int i = 0; i < users.size(); i++)
         if (users[i]->check_login())
             return users[i];
+    return nullptr;
 }
 
 void UserRepository::signup(string email, string username, string password, int age, bool publisher)
@@ -36,7 +39,8 @@ void UserRepository::signup(string email, string username, string password, int 
     if(check_existed_user(username))
         throw BadRequest();
     last_id++;
-    find_logged_in_user()->logout();
+    if(find_logged_in_user() != nullptr)
+        find_logged_in_user()->logout();
     if(publisher)        
         add_publisher(email, username, password, age, publisher);
     User* new_user = new User(last_id,email, username, password, age, publisher);
@@ -88,4 +92,12 @@ void UserRepository::add_existed_publisher(Publisher* publisher)
 {
     if(check_existed_user(publisher->get_username()))
         users.push_back(publisher); 
+}
+
+User* UserRepository::find_user_by_id(int user_id)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_id() == user_id)
+            return users[i];
+    throw BadRequest();
 }
