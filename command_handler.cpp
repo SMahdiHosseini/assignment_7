@@ -1,12 +1,16 @@
 #include "command_handler.h"
 #include "exceptions.h"
-#include "definitions.h"
 #include <iostream>
 #include <iterator>
 #include <sstream>
 #include <vector>   
 
 using namespace std;
+
+CommandHandler::CommandHandler() : valid()
+{
+    network = new Network();
+}
 
 void CommandHandler::run()
 {
@@ -47,30 +51,47 @@ void CommandHandler::detect_instruction_methode()
         post_methode_instructions();
         return;
     }
-    if(input[INSTRUCTION_TYPE_INDEX] == GET)
-    {
-        get_methode_instructions();
-        return;
-    }
-    if(input[INSTRUCTION_TYPE_INDEX] == PUT)
-    {
-        put_methode_instructions();
-        return;
-    }
-    if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
-    {
-        delete_methode_instructions();
-        return;
-    }
+    // if(input[INSTRUCTION_TYPE_INDEX] == GET)
+    // {
+    //     get_methode_instructions();
+    //     return;
+    // }
+    // if(input[INSTRUCTION_TYPE_INDEX] == PUT)
+    // {
+    //     put_methode_instructions();
+    //     return;
+    // }
+    // if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
+    // {
+    //     delete_methode_instructions();
+    //     return;
+    // }
     throw BadRequest();
 }
 
 void CommandHandler::post_methode_instructions()
 {
     if(input[INSTRUCTION_ACTION_INDEX] == SIGNUP)
-    {
+        signup();
+}
 
+void CommandHandler::signup()
+{
+
+    int username_index = find_index("username");
+    int pass_index = find_index("password");
+    int age_index = find_index("age");
+    int publisher_index = find_index("publisher");
+    int email_index = find_index("email");
+    if(valid.signup_validity(input[age_index + 1], input[email_index + 1], input[publisher_index + 1]))
+    {
+        network->signup(input[email_index + 1], input[username_index + 1], 
+                        input[pass_index + 1], stoi(input[age_index + 1]), 
+                        check_publisher(input[publisher_index + 1]));
     }
+    else
+        throw BadRequest();
+    
 }
 
 int CommandHandler::find_index(string key)
@@ -80,3 +101,11 @@ int CommandHandler::find_index(string key)
             return i;
     return INSTRUCTION_ACTION_INDEX;
 }
+
+bool CommandHandler::check_publisher(string publisher)
+{
+    if(publisher == "true")
+        return true;
+    if(publisher == "false" || publisher == "?")
+        return false;
+}   
