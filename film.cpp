@@ -38,6 +38,31 @@ string Film::get_name()
     return name;
 }
 
+string Film::get_director()
+{
+    return director;
+}
+
+int Film::get_length()
+{
+    return length;
+}
+
+int Film::get_price()
+{
+    return price;
+}
+
+int Film::get_rate()
+{
+    return score;
+}
+
+int Film::get_year()
+{
+    return year;
+}
+
 void Film::edit_fields(string key, string value)
 {
     if(key == NAME)
@@ -77,4 +102,25 @@ void Film::set_rate(int new_score)
 int Film::find_user_id_width_comment_id(int comment_id)
 {
     return comments.find_user_id_width_comment_id(comment_id);
+}
+
+void Film::add_comment(string content, int user_id)
+{
+    comments.add_comment(content, user_id);
+}
+
+int Film::comput_cahs()
+{
+    if(score < 5)
+        return price * 0.8;
+    if(score >= 5 && score < 8)
+        return price * 0.9;
+    if(score >= 8)
+        return price * 0.95;
+}
+
+string Film::show()
+{
+    return to_string(id) + " | " + name + " | " + to_string(length) + " | " + 
+    to_string(price) + " | " + to_string(score) + " | " + to_string(year) + " | " + director;
 }

@@ -1,7 +1,7 @@
 #ifndef FILM_H
 #define FILM_H
 
-#include "publisher.h"
+#include <map>
 #include "comment.h"
 #include "notification.h"
 #include "comment_repository.h"
@@ -10,19 +10,22 @@ class Film
 {
 public:
     Film(int _publisher_id, int _id, std::string _name, int _year, int _length, int price, std::string _suumary, std::string _director);
-    int get_id();
     std::string get_name();
     std::string get_summary();
     std::string get_director();
+    std::string show();
     int get_year();
+    int comput_cahs();
     int get_id();
     int get_length();
     int get_price();
     int get_publisher_id();
     int get_rate();
+    int find_user_id_width_comment_id(int comment_id);
+    void add_comment(std::string content, int user_id);
     void set_rate(int score);
     void delete_comment(int comment_id);
-    void reply_comment(int comment_id, std::string content, Notification notification);
+    void reply_comment(int comment_id, std::string content);
     void edit(std::map<std::string, std::string> edited_options);
     void edit_fields(std::string key, std::string value);
 private:
@@ -35,6 +38,7 @@ private:
     int score;
     int length;
     int price;
+    int rate_count;
     CommentRepository comments;
 };
 
