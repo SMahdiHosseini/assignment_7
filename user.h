@@ -3,10 +3,10 @@
 
 #include <iostream>
 #include <vector>
-#include "notification.h"
-#include "network.h"
-#include "publisher.h"
 #include "film.h"
+#include "user_repository.h"
+#include "film_repository.h"
+#include "notification_repository.h"
 
 class User
 {
@@ -22,27 +22,30 @@ public:
 	void login_user();
 	void give_notification(Notification notification); 
 	void show_unread_notifications();
-	void show_notifications();
+	void show_notifications(int limit);
 	void show_bought_films();
 	void follow_publisher(Publisher* new_pubisher);
 	void increase_money(int amount);
 	void search_film(Film* film);
-	void buy_film(Film* new_film, Publisher* publisher);
+	void buy_film(int film_id, int publisher_id);
 	void rate_film(int film_id, int score);
 	void comment_on_film(int film_id, std::string content);
+	void add_comment(int film_id, std::string content);
+	void send_comment_notification(Publisher* publisher, Film* film);
 	void send_follow_notification(Publisher* publisher);
 	void send_buy_notification(Publisher* publisher, Film* film);
 	void send_rate_notification(Publisher* publisher, Film* film);
 	virtual void add_follower(User* new_follower);
+	virtual void send_reply_notification(User* user);
 	virtual void delete_comment(int film_id, int comment_id);
-	virtual int find_film_index(int film_id);
 	virtual void add_film(Film* new_film);
     virtual void delete_film(int film_id);
     virtual void show_followers();
-    virtual void show_films();
+	virtual Film* find_published_film(int film_id);
+    virtual void show_films(std::map<std::string, std::string> optoins);
+	virtual void send_film_register_notificatioin();
     virtual void get_money(int money);
-    virtual void reply_commemt(int film_id, int comment_id, std::string content);
-    virtual void delete_comment(int film_id, int comment_id);
+    virtual void reply_commemt(User* user, int film_id, int comment_id, std::string content);
 protected:
 	std::string username;
 	std::string password;
@@ -53,7 +56,7 @@ protected:
 	int cash;
 	int age;
 	FilmRepository bought_films;
-	std::vector<Notification> notifications; 
+	NotificationRepository notifications; 
 	UserRepository following_publishers;
 };
 
