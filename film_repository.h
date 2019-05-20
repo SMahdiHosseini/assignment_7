@@ -12,6 +12,7 @@ public:
     void edit_film(int publisher_id, int film_id, std::map<std::string, std::string> edited_options);
     void delete_film(int film_id);
     void show_films(std::map<std::string, std::string> optiions);
+    std::vector<int> in_range_films_id(std::map<std::string, std::string> optiions);
     bool in_range_film(std::map<std::string, std::string> optiions, Film* film);
     bool check_film_exists(int film_id);
     int find_user_id_width_comment_id(int film_id, int comment_id);

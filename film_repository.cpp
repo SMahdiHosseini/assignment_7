@@ -1,6 +1,7 @@
 #include "film_repository.h"
 #include "exceptions.h"
 #include "definitions.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -84,10 +85,20 @@ bool FilmRepository::in_range_film(map<string, string> options, Film* film)
     return flag;
 }
 
+vector<int> FilmRepository::in_range_films_id(map<string, string> options)
+{
+    vector<int> films_id_to_show;
+    for (int i = 0; i < films.size(); i++)
+        if(in_range_film(options, films[i]))
+            films_id_to_show.push_back(films[i]->get_id());
+    return films_id_to_show;
+}
+
 void FilmRepository::show_films(map<string, string> options)
 {
     cout << "#. Film Id | Film Name | Film Length | Film price | rate | Production Year | Film Director\n";
-    for (int i = 0; i < films.size(); i++)
-        if(in_range_film(options, films[i]))
-            cout << i << "." << films[i]->show() << endl;
+    vector<int> films_id_to_show = in_range_films_id(options);
+    sort(films_id_to_show.begin(), films_id_to_show.end());
+    for (int i = 0; i < films_id_to_show.size(); i++)
+        cout << i << ". " << find_film_by_id(films_id_to_show[i])->show();
 }
