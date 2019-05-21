@@ -96,26 +96,56 @@ void Network::increase_money(int amount)
 
 void Network::buy_film(int film_id)
 {
-    Film* film = films->find_film_by_id(film_id);
-    find_logged_in_user()->buy_film(film, users->find_publisher_by_id(film->get_publisher_id()));
-    cash[users->find_publisher_by_id(film->get_publisher_id())->get_username()] += compute_cash(film_id);
+    users->buy_film(film_id, films->find_film_by_id(film_id)->get_publisher_id());
+    cash[users->find_publisher_by_id(films->find_film_by_id(film_id)->get_publisher_id())->get_username()] += compute_cash(film_id);
     cout << "OK\n";
 }
 
 int Network::compute_cash(int film_id)
 {
-    int rate = films->find_film_by_id(film_id)->get_rate();
-    int price = films->find_film_by_id(film_id)->get_price();
-    if(rate < 5)
-        return price * 0.8;
-    if(rate >= 5 && rate < 8)
-        return price * 0.9;
-    if(rate >= 8)
-        return price * 0.95;
+    return films->find_film_by_id(film_id)->comput_cahs();
 }
 
 void Network::rate_film(int film_id, int score)
 {
     find_logged_in_user()->rate_film(film_id, score);
     cout << "OK\n";
+}
+
+void Network::add_comment(int film_id, string content)
+{
+    
+    find_logged_in_user()->add_comment(film_id, content);
+    cout << "OK\n";
+}
+
+void Network::show_unread_notificatioins()
+{
+    find_logged_in_user()->show_unread_notifications();
+}
+
+void Network::show_notifications(int limit)
+{
+    find_logged_in_user()->show_notifications(limit);
+}
+
+void Network::show_published_film(map<string, string> options)
+{
+    find_logged_in_user()->show_films(options);
+}
+
+void Network::show_bought_films(map<string, string> options)
+{
+    find_logged_in_user()->show_bought_films(options);
+}
+
+void Network::search(map<string, string> options)
+{
+    films->show_films(options);
+}
+
+void Network::show_film_details(int film_id)
+{
+    films->show_film_details(film_id);
+    films->show_recomend_film(find_logged_in_user()->get_bought_films_id());
 }

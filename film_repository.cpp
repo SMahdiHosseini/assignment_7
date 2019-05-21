@@ -102,3 +102,47 @@ void FilmRepository::show_films(map<string, string> options)
     for (int i = 0; i < films_id_to_show.size(); i++)
         cout << i << ". " << find_film_by_id(films_id_to_show[i])->show();
 }
+
+void FilmRepository::show_film_details(int film_id)
+{
+    find_film_by_id(film_id)->show_details();
+}
+
+vector<pair<int, int>> FilmRepository::sort_pairs_by_rate()
+{
+    vector<pair<int, int>> sort_by_rate;
+    for (int i = 0; i < films.size(); i++)
+        sort_by_rate.push_back(pair<int, int> (films[i]->get_rate(), films[i]->get_id()));
+    return sort_by_rate;
+}
+
+bool FilmRepository::existed(vector<int> bought_films_id, int id)
+{
+    for (int i = 0; i < bought_films_id.size(); i++)
+        if(bought_films_id[i] == id)
+            return true;
+    return false;
+}
+
+void FilmRepository::show_recomend_film(vector<int> bought_films_id)
+{
+    cout << "Recomendation Film\n#. Film Id | Film Name | Film Length | Film Director\n";
+    int counter = 1;
+    vector<pair<int, int>> sorted_by_rate = sort_pairs_by_rate();
+    for (int i = 0; i < sorted_by_rate.size(); i++)
+    {
+        if(!existed(bought_films_id, sorted_by_rate[i].second) && counter <= 4)
+        {
+            cout << counter << ". "  <<find_film_by_id(sorted_by_rate[i].second)->show_recomend();
+            counter++;
+        }
+    }
+}
+
+vector<int> FilmRepository::get_films_id()
+{
+    vector<int> films_id;
+    for (int i = 0; i < films.size(); i++)
+        films_id.push_back(films[i]->get_id());
+    return films_id;
+}

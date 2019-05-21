@@ -92,6 +92,16 @@ void User::increase_money(int amount)
     cash += amount;
 }
 
+void User::show_bought_films(map<string, string> options)
+{
+    bought_films.show_films(options);
+}
+
+vector<int> User::get_bought_films_id()
+{
+    return bought_films.get_films_id();
+}
+
 string User::get_username()
 {
     return username;

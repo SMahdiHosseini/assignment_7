@@ -15,6 +15,7 @@ public:
 	std::string get_username();
 	std::string get_password();
 	std::string get_email();
+	std::vector<int> get_bought_films_id();
 	int get_id();
 	bool check_login();
 	bool check_publsher();
@@ -23,10 +24,9 @@ public:
 	void give_notification(Notification notification); 
 	void show_unread_notifications();
 	void show_notifications(int limit);
-	void show_bought_films();
+	void show_bought_films(std::map<std::string, std::string> options);
 	void follow_publisher(Publisher* new_pubisher);
 	void increase_money(int amount);
-	void search_film(Film* film);
 	void buy_film(int film_id, int publisher_id);
 	void rate_film(int film_id, int score);
 	void comment_on_film(int film_id, std::string content);

@@ -19,11 +19,19 @@ public:
     void follow(int publisher_id);
     void buy_film(int film_id);
     void show_followers();
+    void show_film_details(int film_id);
     void get_money();
+    void search(std::map<std::string, std::string> options);
+    void add_comment(int film_id, std::string content);
     void rate_film(int film_id, int score);
     void increase_money(int amount);
     void reply_comment(int film_id, int comment_id, std::string content);
     void delete_comment(int film_id, int comment_id);
+    void show_unread_notificatioins();
+    void show_notifications(int limit);
+    void show_published_film(std::map<std::string, std::string> options);
+    void show_bought_films(std::map<std::string, std::string> options);
+    int compute_cash(int film_id);
     bool check_existed_user(std::string username);
     User* find_logged_in_user();
 private:

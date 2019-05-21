@@ -124,3 +124,23 @@ string Film::show()
     return to_string(id) + " | " + name + " | " + to_string(length) + " | " + 
     to_string(price) + " | " + to_string(score) + " | " + to_string(year) + " | " + director;
 }
+
+string Film::show_details()
+{
+    string details = "";
+    details += "Details of film " + name + "\n";
+    details += "Id = " + to_string(id) + "\n";
+    details += "Director = " + director + "\n";
+    details += "Length = " + to_string(length) + "\n";
+    details += "Year = " + to_string(year) + "\n";
+    details += "Summary = " + summary + "\n";
+    details += "rate = " + to_string(score) + "\n";
+    details += "price = " + to_string(price) + "\n";
+    details += comments.show_comments();
+    return details;
+}
+
+string Film::show_recomend()
+{
+    return to_string(id) + " | " + name + " | " + to_string(length) + " | " + director + "\n";
+}
