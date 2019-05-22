@@ -52,11 +52,11 @@ void CommandHandler::detect_instruction_methode()
         post_methode_instructions();
         return;
     }
-    // if(input[INSTRUCTION_TYPE_INDEX] == GET)
-    // {
-    //     get_methode_instructions();
-    //     return;
-    // }
+    if(input[INSTRUCTION_TYPE_INDEX] == GET)
+    {
+        get_methode_instructions();
+        return;
+    }
     if(input[INSTRUCTION_TYPE_INDEX] == PUT)
     {
         put_methode_instructions();
@@ -65,6 +65,36 @@ void CommandHandler::detect_instruction_methode()
     if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
     {
         delete_methode_instructions();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::get_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FOLLOWERS)
+    {
+        network->show_followers();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == PUBLISHED)
+    {
+        show_films(PUBLISHED);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        show_films(FILMS);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == PURCHASED)
+    {
+        show_films(PURCHASED);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == NOTIFICATIONS)
+    {
+        show_notifications();
         return;
     }
     throw BadRequest();
@@ -150,6 +180,67 @@ void CommandHandler::post_methode_instructions()
     throw BadRequest();
 }
 
+void CommandHandler::show_notifications()
+{
+    if(find_index(SEPERATOR) != INSTRUCTION_SEPERATOR_INDEX)
+    {
+        network->show_unread_notificatioins();
+        return;
+    }
+    string limit = input[find_index("limit") + 1];
+    if(valid.check_integer(limit))
+        network->show_notifications(stoi(limit));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::show_films(string type)
+{
+    map<string, string> elements;
+    if(find_index(SEPERATOR) != INSTRUCTION_SEPERATOR_INDEX)
+    {
+        elements[EMPTY] = EMPTY;
+        if(type == PUBLISHED)
+            network->show_published_film(elements);
+        if(type == FILMS)
+            network->search(elements);
+        return;
+    }
+    if(find_index(FILM_ID) != INSTRUCTION_ACTION_INDEX)
+    {
+        string film_id = input[find_index(FILM_ID) + 1];
+        if (valid.check_integer(film_id))
+        {
+            network->show_film_details(stoi(film_id));
+        }
+        else
+            throw BadRequest();
+    }
+    if(find_index(NAME) != INSTRUCTION_ACTION_INDEX)
+        elements[NAME] = input[find_index(NAME) + 1];
+    if(find_index("min_year") != INSTRUCTION_ACTION_INDEX)
+        elements["min_year"] = input[find_index("min_year") + 1];
+    if(find_index("min_rate") != INSTRUCTION_ACTION_INDEX)
+        elements["min_rate"] = input[find_index("min_rate") + 1];
+    if(find_index(PRICE) != INSTRUCTION_ACTION_INDEX)
+        elements[PRICE] = input[find_index(PRICE) + 1];
+    if(find_index(DIRECTOR) != INSTRUCTION_ACTION_INDEX)
+        elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(find_index("max_year") != INSTRUCTION_ACTION_INDEX)
+        elements["max_year"] = input[find_index("max_year") + 1];
+    if(valid.show_film_validity(elements))
+    {
+        if(type == PURCHASED)
+            network->show_bought_films(elements);
+        if(type == PUBLISHED)
+            network->show_published_film(elements);
+        if(type == FILMS)
+            network->search(elements);
+    }
+    else
+        throw BadRequest();
+}
+
 void CommandHandler::delete_film()
 {
     string film_id = input[find_index(FILM_ID) + 1];
@@ -162,7 +253,7 @@ void CommandHandler::delete_film()
 void CommandHandler::delete_comment()
 {
     string film_id = input[find_index(FILM_ID) + 1];
-    string comment_id = input[find_index[COMMENT_H] + 1];
+    string comment_id = input[find_index(COMMENT_ID) + 1];
     if(valid.check_integer(film_id) && valid.check_integer(comment_id))
         network->delete_comment(stoi(film_id), stoi(comment_id));
     else
