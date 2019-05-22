@@ -1,12 +1,11 @@
 #include "definitions.h"
 #include "validity.h"
+#include <regex>
 
 using namespace std;
 
 Validity::Validity()
-{
-
-}
+{}
 
 bool Validity::check_correct_input(map<string, string> elements)
 {
@@ -41,13 +40,8 @@ bool Validity::check_integer(string integer)
 
 bool Validity::check_email(string email)
 {
-    int seperator_count = 0;
-    for (int i = 0; i < email.size(); i++)
-        if(email[i] == '@')
-            seperator_count++;
-    if(seperator_count != 1)
-        return false;
-    return true;
+    const regex pattern("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
+   return regex_match(email, pattern);
 }
 
 bool Validity::check_publisher(string publisher)
@@ -55,4 +49,20 @@ bool Validity::check_publisher(string publisher)
     if(publisher == "true" || publisher == "false" || publisher == "?")
         return true;
     return false;
+}
+
+bool Validity::reply_comment_validitiy(map<string, string> elements)
+{
+    return check_correct_input(elements) && check_integer(elements[FILM_ID]) && check_integer(elements[COMMENT_ID]);
+}
+
+bool Validity::check_edit_film_validity(string id, map<string, string> elements)
+{
+    bool flag = true; 
+    for(auto& element: elements)
+    {
+        if(element.first == YEAR || element.first == LENGTH)
+            flag = check_integer(YEAR) && check_integer(LENGTH);
+    }
+    return check_integer(id) && flag && check_correct_input(elements);
 }

@@ -14,8 +14,14 @@ class CommandHandler
 public:
     CommandHandler();
     string_list split_string(std::string input);
+    void reply_comment();
+    void follow();
     void run();
+    void edit_film();
+    void increase_money();
     void post_money();
+    void rate_film();
+    void buy_film();
     void detect_instruction_methode();
     void post_methode_instructions();
     void get_methode_instructions();
@@ -23,7 +29,10 @@ public:
     void delete_methode_instructions();
     void signup();
     void login();
+    void add_comment();
     void add_film();
+    void delete_film();
+    int find_optional_index(std::string key);
     int find_index(std::string key);
     bool check_publisher(std::string publisher);
 private:

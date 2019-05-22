@@ -57,27 +57,180 @@ void CommandHandler::detect_instruction_methode()
     //     get_methode_instructions();
     //     return;
     // }
-    // if(input[INSTRUCTION_TYPE_INDEX] == PUT)
-    // {
-    //     put_methode_instructions();
-    //     return;
-    // }
-    // if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
-    // {
-    //     delete_methode_instructions();
-    //     return;
-    // }
+    if(input[INSTRUCTION_TYPE_INDEX] == PUT)
+    {
+        put_methode_instructions();
+        return;
+    }
+    if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
+    {
+        delete_methode_instructions();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::delete_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        delete_film();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::put_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        edit_film();
+        return;
+    }
     throw BadRequest();
 }
 
 void CommandHandler::post_methode_instructions()
 {
     if(input[INSTRUCTION_ACTION_INDEX] == SIGNUP)
+    {
         signup();
+        return;
+    }
     if(input[INSTRUCTION_ACTION_INDEX] == LOGIN)
+    {
         login();
-    if(input[INSTRUCTION_ACTION_INDEX] == POST_FILM)
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
         add_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == MONEY && input[INSTRUCTION_SEPERATOR_INDEX] != SEPERATOR)
+    {    
+        post_money();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == REPLIES)
+    {   
+        reply_comment();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FOLLOWERS)
+    {   
+        follow();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == MONEY && input[INSTRUCTION_SEPERATOR_INDEX] == SEPERATOR)
+    {   
+        increase_money();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == BUY)
+    {   
+        buy_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == RATE)
+    {
+        rate_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == COMMENTS)
+    {    
+        add_comment();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::delete_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(valid.check_integer(film_id))
+        network->delete_film(stoi(film_id));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::edit_film()
+{
+    map<string, string> elements; 
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(find_index(NAME) != INSTRUCTION_ACTION_INDEX)
+        elements[NAME] = input[find_index(NAME) + 1];
+    if(find_index(YEAR) != INSTRUCTION_ACTION_INDEX)
+        elements[YEAR] = input[find_index(YEAR) + 1];
+    if(find_index(LENGTH) != INSTRUCTION_ACTION_INDEX)
+        elements[LENGTH] = input[find_index(LENGTH) + 1];
+    if(find_index(SUMMARY) != INSTRUCTION_ACTION_INDEX)
+        elements[SUMMARY] = input[find_index(SUMMARY) + 1];
+    if(find_index(DIRECTOR) != INSTRUCTION_ACTION_INDEX)
+        elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(valid.check_edit_film_validity(film_id, elements))
+        network->edit_film(stoi(film_id), elements);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::add_comment()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string content = input[find_index(CONTENT) + 1];
+    if(valid.check_integer(film_id))
+        network->add_comment(stoi(film_id), content);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::rate_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string score = input[find_index(SCORE) + 1];
+    if(valid.check_integer(film_id) && valid.check_integer(score))
+        network->rate_film(stoi(film_id), stoi(score));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::follow()
+{
+    string user_id = input[find_index(USER_ID) + 1];
+    if(valid.check_integer(user_id))
+        network->follow(stoi(user_id));
+    else 
+        throw BadRequest();
+}
+
+void CommandHandler::buy_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(valid.check_integer(film_id))
+        network->buy_film(stoi(film_id));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::reply_comment()
+{
+    map<string, string> elements;
+    elements[FILM_ID] = input[find_index(FILM_ID) + 1];
+    elements[COMMENT_ID] = input[find_index(COMMENT_ID) + 1];
+    elements[CONTENT] = input[find_index(CONTENT) + 1];
+    if(valid.reply_comment_validitiy(elements))
+        network->reply_comment(stoi(elements[FILM_ID]), stoi(elements[COMMENT_ID]), elements[CONTENT]);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::increase_money()
+{
+    string amount = input[find_index(AMOUNT) + 1];
+    if(valid.check_integer(amount))
+        network->increase_money(stoi(amount));
+    else
+        throw BadRequest();
 }
 
 void CommandHandler::signup()
@@ -100,10 +253,12 @@ void CommandHandler::signup()
 void CommandHandler::login()
 {
     map<string, string> elements;
-    elements[USERNAME] = input[find_index(USERNAME)];
-    elements[PASS] = input[find_index(PASS)];
+    elements[USERNAME] = input[find_index(USERNAME) + 1];
+    elements[PASS] = input[find_index(PASS) + 1];
     if(valid.login_validity(elements))
         network->login(elements[USERNAME], elements[PASS]);
+    else
+        throw BadRequest();
 }
 
 void CommandHandler::post_money()
@@ -124,6 +279,8 @@ void CommandHandler::add_film()
         network->add_film(elements[NAME], stoi(elements[YEAR]),
                             stoi(elements[LENGTH]), stoi(elements[PRICE]),
                             elements[SUMMARY], elements[DIRECTOR]);
+    else
+        throw BadRequest();
 }
 
 int CommandHandler::find_index(string key)
