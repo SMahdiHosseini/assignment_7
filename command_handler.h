@@ -32,6 +32,7 @@ public:
     void add_comment();
     void add_film();
     void delete_film();
+    void delete_comment();
     int find_optional_index(std::string key);
     int find_index(std::string key);
     bool check_publisher(std::string publisher);

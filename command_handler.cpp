@@ -77,6 +77,11 @@ void CommandHandler::delete_methode_instructions()
         delete_film();
         return;
     }
+    if(input[INSTRUCTION_ACTION_INDEX] == COMMENTS)
+    {
+        delete_comment();
+        return;
+    }
     throw BadRequest();
 }
 
@@ -154,6 +159,15 @@ void CommandHandler::delete_film()
         throw BadRequest();
 }
 
+void CommandHandler::delete_comment()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string comment_id = input[find_index[COMMENT_H] + 1];
+    if(valid.check_integer(film_id) && valid.check_integer(comment_id))
+        network->delete_comment(stoi(film_id), stoi(comment_id));
+    else
+        throw BadRequest();
+}
 void CommandHandler::edit_film()
 {
     map<string, string> elements; 
