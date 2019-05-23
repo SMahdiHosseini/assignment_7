@@ -1,0 +1,1954 @@
+#include "command_handler.h"
+#include "exceptions.h"
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <vector>   
+#include <map>
+
+using namespace std;
+
+CommandHandler::CommandHandler() : valid()
+{
+    network = new Network();
+}
+
+void CommandHandler::run()
+{
+    string input_string;
+    while (getline(cin, input_string))
+    {
+        try
+        {
+            input = split_string(input_string);
+            if(input.size() == 0)
+                continue;
+            detect_instruction_methode();   
+        }
+        catch(BadRequest& e)
+        {
+            cout << e.what() << '\n';
+        }
+        catch(Inaccessibility& e)
+        {
+            cout << e.what() << '\n';
+        }
+        catch(NotFound& e)
+        {
+            cout << e.what() << '\n';
+        }
+    }
+}
+
+string_list CommandHandler::split_string(string input)
+{
+    stringstream input_string_stream(input);
+    return vector<string>(istream_iterator<string>(input_string_stream),
+            istream_iterator<string>());
+}
+
+void CommandHandler::detect_instruction_methode()
+{
+    if(input[INSTRUCTION_TYPE_INDEX] == POST)
+    {
+        post_methode_instructions();
+        return;
+    }
+    if(input[INSTRUCTION_TYPE_INDEX] == GET)
+    {
+        get_methode_instructions();
+        return;
+    }
+    if(input[INSTRUCTION_TYPE_INDEX] == PUT)
+    {
+        put_methode_instructions();
+        return;
+    }
+    if(input[INSTRUCTION_TYPE_INDEX] == DELETE)
+    {
+        delete_methode_instructions();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::get_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FOLLOWERS)
+    {
+        network->show_followers();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == PUBLISHED)
+    {
+        show_films(PUBLISHED);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        show_films(FILMS);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == PURCHASED)
+    {
+        show_films(PURCHASED);
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == NOTIFICATIONS)
+    {
+        show_notifications();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::delete_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        delete_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == COMMENTS)
+    {
+        delete_comment();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::put_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        edit_film();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::post_methode_instructions()
+{
+    if(input[INSTRUCTION_ACTION_INDEX] == SIGNUP)
+    {
+        signup();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == LOGIN)
+    {
+        login();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FILMS)
+    {
+        add_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == MONEY && find_index(SEPERATOR) == INSTRUCTION_ACTION_INDEX)
+    {    
+        post_money();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == REPLIES)
+    {   
+        reply_comment();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == FOLLOWERS)
+    {   
+        follow();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == MONEY && input[INSTRUCTION_SEPERATOR_INDEX] == SEPERATOR)
+    {   
+        increase_money();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == BUY)
+    {   
+        buy_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == RATE)
+    {
+        rate_film();
+        return;
+    }
+    if(input[INSTRUCTION_ACTION_INDEX] == COMMENTS)
+    {    
+        add_comment();
+        return;
+    }
+    throw BadRequest();
+}
+
+void CommandHandler::show_notifications()
+{
+    if(find_index(SEPERATOR) != INSTRUCTION_SEPERATOR_INDEX)
+    {
+        network->show_unread_notificatioins();
+        return;
+    }
+    string limit = input[find_index("limit") + 1];
+    if(valid.check_integer(limit))
+        network->show_notifications(stoi(limit));
+    else
+        throw BadRequest();
+}
+
+bool CommandHandler::show_details()
+{
+    if(find_index(FILM_ID) != INSTRUCTION_ACTION_INDEX)
+    {
+        string film_id = input[find_index(FILM_ID) + 1];
+        if (valid.check_integer(film_id))
+        {
+            network->show_film_details(stoi(film_id));
+            return true;
+        }
+        else
+            throw BadRequest();
+    }
+    return false;
+}
+
+bool CommandHandler::show_all(map<string, string> elements,string type)
+{
+    if(find_index(SEPERATOR) != INSTRUCTION_SEPERATOR_INDEX)
+    {
+        elements[EMPTY] = EMPTY;
+        if(type == PUBLISHED)
+            network->show_published_film(elements);
+        if(type == FILMS)
+            network->search(elements);
+        if(type == PURCHASED)
+            network->show_bought_films(elements);
+        return true;
+    }
+    return false;
+}
+
+void CommandHandler::show_films(string type)
+{
+    map<string, string> elements;
+    if(show_all(elements, type))
+        return;
+    if(show_details())
+        return;
+    if(find_index(NAME) != INSTRUCTION_ACTION_INDEX)
+        elements[NAME] = input[find_index(NAME) + 1];
+    if(find_index("min_year") != INSTRUCTION_ACTION_INDEX)
+        elements["min_year"] = input[find_index("min_year") + 1];
+    if(find_index("min_rate") != INSTRUCTION_ACTION_INDEX)
+        elements["min_rate"] = input[find_index("min_rate") + 1];
+    if(find_index(PRICE) != INSTRUCTION_ACTION_INDEX)
+        elements[PRICE] = input[find_index(PRICE) + 1];
+    if(find_index(DIRECTOR) != INSTRUCTION_ACTION_INDEX)
+        elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(find_index("max_year") != INSTRUCTION_ACTION_INDEX)
+        elements["max_year"] = input[find_index("max_year") + 1];
+    if(valid.show_film_validity(elements))
+    {
+        if(type == PURCHASED)
+            network->show_bought_films(elements);
+        if(type == PUBLISHED)
+            network->show_published_film(elements);
+        if(type == FILMS)
+            network->search(elements);
+    }
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::delete_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(valid.check_integer(film_id))
+        network->delete_film(stoi(film_id));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::delete_comment()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string comment_id = input[find_index(COMMENT_ID) + 1];
+    if(valid.check_integer(film_id) && valid.check_integer(comment_id))
+        network->delete_comment(stoi(film_id), stoi(comment_id));
+    else
+        throw BadRequest();
+}
+void CommandHandler::edit_film()
+{
+    map<string, string> elements; 
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(find_index(NAME) != INSTRUCTION_ACTION_INDEX)
+        elements[NAME] = input[find_index(NAME) + 1];
+    if(find_index(YEAR) != INSTRUCTION_ACTION_INDEX)
+        elements[YEAR] = input[find_index(YEAR) + 1];
+    if(find_index(LENGTH) != INSTRUCTION_ACTION_INDEX)
+        elements[LENGTH] = input[find_index(LENGTH) + 1];
+    if(find_index(SUMMARY) != INSTRUCTION_ACTION_INDEX)
+        elements[SUMMARY] = input[find_index(SUMMARY) + 1];
+    if(find_index(DIRECTOR) != INSTRUCTION_ACTION_INDEX)
+        elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(valid.check_edit_film_validity(film_id, elements))
+        network->edit_film(stoi(film_id), elements);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::add_comment()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string content = input[find_index(CONTENT) + 1];
+    if(valid.check_integer(film_id))
+        network->add_comment(stoi(film_id), content);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::rate_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    string score = input[find_index(SCORE) + 1];
+    if(valid.check_integer(film_id) && valid.check_integer(score))
+        network->rate_film(stoi(film_id), stoi(score));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::follow()
+{
+    string user_id = input[find_index(USER_ID) + 1];
+    if(valid.check_integer(user_id))
+        network->follow(stoi(user_id));
+    else 
+        throw BadRequest();
+}
+
+void CommandHandler::buy_film()
+{
+    string film_id = input[find_index(FILM_ID) + 1];
+    if(valid.check_integer(film_id))
+        network->buy_film(stoi(film_id));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::reply_comment()
+{
+    map<string, string> elements;
+    elements[FILM_ID] = input[find_index(FILM_ID) + 1];
+    elements[COMMENT_ID] = input[find_index(COMMENT_ID) + 1];
+    elements[CONTENT] = input[find_index(CONTENT) + 1];
+    if(valid.reply_comment_validitiy(elements))
+        network->reply_comment(stoi(elements[FILM_ID]), stoi(elements[COMMENT_ID]), elements[CONTENT]);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::increase_money()
+{
+    string amount = input[find_index(AMOUNT) + 1];
+    if(valid.check_integer(amount))
+        network->increase_money(stoi(amount));
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::signup()
+{
+    map<string, string> elements;
+    elements[USERNAME] = input[find_index(USERNAME) + 1];
+    elements[PASS] = input[find_index(PASS) + 1];
+    elements[AGE] = input[find_index(AGE) + 1];
+    elements[PUBLISHER] = input[find_index(PUBLISHER) + 1];
+    elements[EMAIL] = input[find_index(EMAIL) + 1];
+    if(valid.signup_validity(elements))
+    {
+        network->signup(elements[EMAIL], elements[USERNAME], elements[PASS], 
+                        stoi(elements[AGE]), check_publisher(elements[PUBLISHER]));
+    }
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::login()
+{
+    map<string, string> elements;
+    elements[USERNAME] = input[find_index(USERNAME) + 1];
+    elements[PASS] = input[find_index(PASS) + 1];
+    if(valid.login_validity(elements))
+        network->login(elements[USERNAME], elements[PASS]);
+    else
+        throw BadRequest();
+}
+
+void CommandHandler::post_money()
+{
+    network->get_money();
+}
+
+void CommandHandler::add_film()
+{
+    map<string, string> elements;
+    elements[NAME] = input[find_index(NAME) + 1];
+    elements[YEAR] = input[find_index(YEAR) + 1];
+    elements[LENGTH] = input[find_index(LENGTH) + 1];
+    elements[PRICE] = input[find_index(PRICE) + 1];
+    elements[SUMMARY] = input[find_index(SUMMARY) + 1];
+    elements[DIRECTOR] = input[find_index(DIRECTOR) + 1];
+    if(valid.add_film_validity(elements))
+        network->add_film(elements[NAME], stoi(elements[YEAR]),
+                            stoi(elements[LENGTH]), stoi(elements[PRICE]),
+                            elements[SUMMARY], elements[DIRECTOR]);
+    else
+        throw BadRequest();
+}
+
+int CommandHandler::find_index(string key)
+{
+    for (int i = 0; i < input.size(); i++)
+        if(input[i] == key)
+            return i;
+    return INSTRUCTION_ACTION_INDEX;
+}
+
+bool CommandHandler::check_publisher(string publisher)
+{
+    if(publisher == "true")
+        return true;
+    if(publisher == "false" || publisher == "?")
+        return false;
+}   #include "comment.h"
+
+using namespace std;
+
+Comment::Comment(int _id, string _content, int _user_id)
+{
+    id = _id;
+    content = _content;
+    user_id = _user_id;
+}
+
+int Comment::get_id()
+{
+    return id;
+}
+
+void Comment::reply_content(string _content)
+{
+    reply = _content;
+}
+
+int Comment::get_user_id()
+{
+    return user_id;
+}
+
+string Comment::get_content()
+{
+    return content;
+}
+string Comment::get_reply()
+{
+    return reply;
+}#include "comment_repository.h"
+#include "exceptions.h"
+
+using namespace std;
+
+CommentRepository::CommentRepository()
+{
+    last_id = 0;
+}
+
+Comment* CommentRepository::find_comment_by_id(int comment_id)
+{
+    for (int i = 0; i < comments.size(); i++)
+        if(comments[i]->get_id() == comment_id)
+            return comments[i];
+    throw Inaccessibility();
+}
+
+int CommentRepository::find_comment_index(int comment_id)
+{
+    for (int i = 0; i < comments.size(); i++)
+        if(comments[i]->get_id() == comment_id)
+            return i;
+    throw Inaccessibility();
+}
+
+void CommentRepository::delete_comment(int comment_id)
+{
+    comments.erase(comments.begin() + find_comment_index(comment_id));
+}
+
+void  CommentRepository::add_comment(string content, int user_id)
+{
+    last_id++;
+    Comment* new_comment = new Comment(last_id, content, user_id);
+    comments.push_back(new_comment);
+}
+
+int CommentRepository::find_user_id_with_comment_id(int comment_id)
+{
+    return find_comment_by_id(comment_id)->get_user_id();
+}
+
+string CommentRepository::show_comments()
+{
+    string result = "\nComments\n\n";
+    for (int i = 0; i < comments.size(); i++)
+    {
+        result += to_string(comments[i]->get_id()) + ". " + comments[i]->get_content() + "\n";
+        result += to_string(comments[i]->get_id()) + ".1. " + comments[i]->get_reply() + "\n";
+    }
+    return result;
+}#include "exceptions.h"
+
+using namespace std;
+
+string NotFound::what()
+{
+    return "Not Found";
+}
+
+string BadRequest::what()
+{
+    return "Bad Request";
+}
+
+string Inaccessibility::what()
+{
+    return "Permission Denied";
+}#include "film.h"
+
+#define NAME "name"
+#define YEAR "year"
+#define LENGTH "length"
+#define SUMMATY "summary"
+#define DIRECTOR "director"
+
+using namespace std;
+
+Film::Film(int _publisher_id, int _id, string _name, int _year, int _length, int _price, string _suumary, string _director)
+    : comments()
+{
+    name = _name;
+    summary = _suumary;
+    director = _director;
+    year = _year;
+    id = _id;
+    publisher_id = _publisher_id;
+    length = _length;
+    price = _price;
+    score = 0;
+    rate_count = 0;
+}
+
+int Film::get_id()
+{
+    return id;
+}
+
+int Film::get_publisher_id()
+{
+    return publisher_id;
+}
+
+string Film::get_name()
+{
+    return name;
+}
+
+string Film::get_director()
+{
+    return director;
+}
+
+int Film::get_length()
+{
+    return length;
+}
+
+int Film::get_price()
+{
+    return price;
+}
+
+int Film::get_rate()
+{
+    return score;
+}
+
+int Film::get_year()
+{
+    return year;
+}
+
+void Film::edit_fields(string key, string value)
+{
+    if(key == NAME)
+        name = value;
+    if(key == YEAR)
+        year = stoi(value);
+    if(key == LENGTH)
+        length = stoi(value);
+    if(key == SUMMATY)
+        summary = value;
+    if(key == DIRECTOR)
+        director = value;
+}
+
+void Film::edit(map<string, string> edited_options)
+{
+    for(auto& option : edited_options)
+        edit_fields(option.first, option.second);
+}
+
+void Film::reply_comment(int comment_id, string content)
+{
+    comments.find_comment_by_id(comment_id)->reply_content(content);
+}
+
+void Film::delete_comment(int comment_id)
+{
+    comments.delete_comment(comment_id);
+}
+
+void Film::set_rate(int new_score)
+{
+    score = (score * rate_count + new_score) / (rate_count + 1);
+    rate_count++;
+}
+
+int Film::find_user_id_with_comment_id(int comment_id)
+{
+    return comments.find_user_id_with_comment_id(comment_id);
+}
+
+void Film::add_comment(string content, int user_id)
+{
+    comments.add_comment(content, user_id);
+}
+
+int Film::comput_cahs()
+{
+    if(score < 5)
+        return price * 0.8;
+    if(score >= 5 && score < 8)
+        return price * 0.9;
+    if(score >= 8)
+        return price * 0.95;
+}
+
+string Film::show()
+{
+    return to_string(id) + " | " + name + " | " + to_string(length) + " | " + 
+    to_string(price) + " | " + to_string((int) ((score * 100.0) / 100.0)) + " | " + to_string(year) + " | " + director;
+}
+
+string Film::show_details()
+{
+    string details = "";
+    details += "Details of Film " + name + "\n";
+    details += "Id = " + to_string(id) + "\n";
+    details += "Director = " + director + "\n";
+    details += "Length = " + to_string(length) + "\n";
+    details += "Year = " + to_string(year) + "\n";
+    details += "Summary = " + summary + "\n";
+    details += "Rate = " + to_string((int) ((score * 100.0) / 100.0)) + "\n";
+    details += "Price = " + to_string(price) + "\n";
+    details += comments.show_comments();
+    return details;
+}
+
+string Film::show_recomend()
+{
+    return to_string(id) + " | " + name + " | " + to_string(length) + " | " + director + "\n";
+}#include "film_repository.h"
+#include "exceptions.h"
+#include "definitions.h"
+#include <algorithm>
+
+using namespace std;
+
+FilmRepository::FilmRepository()
+{
+    last_id = 0;
+}
+
+Film* FilmRepository::add_new_film(int publisher_id, std::string name, int year, int length, int price, std::string summary, std::string director)
+{
+    last_id++;
+    Film* new_film = new Film(publisher_id, last_id, name, year, length, price, summary, director);
+    films.push_back(new_film);
+    return new_film;
+}
+
+Film* FilmRepository::find_film_by_id(int film_id)
+{
+    for (int i = 0; i < films.size(); i++)
+        if(films[i]->get_id() == film_id)
+            return films[i];
+    throw NotFound();
+}
+
+void FilmRepository::edit_film(int publisher_id, int film_id, std::map<std::string, std::string> edited_options)
+{
+    if(find_film_by_id(film_id)->get_publisher_id() == publisher_id)
+    {
+        find_film_by_id(film_id)->edit(edited_options);
+        return;
+    }
+    throw Inaccessibility();
+}
+
+void FilmRepository::add_film(Film* film)
+{
+    if(!check_film_exists(film->get_id()))
+        films.push_back(film);
+}
+
+bool FilmRepository::check_film_exists(int film_id)
+{
+    for (int i = 0; i < films.size(); i++)
+        if(films[i]->get_id() == film_id)
+            return true;
+    return false;
+}
+
+void FilmRepository::delete_film(int film_id)
+{
+    for (int i = 0; i < films.size(); i++)
+        if(films[i]->get_id() == film_id)
+            films.erase(films.begin() + i);
+}
+
+int FilmRepository::find_user_id_with_comment_id(int film_id, int comment_id)
+{
+    return find_film_by_id(film_id)->find_user_id_with_comment_id(comment_id);
+}
+
+bool FilmRepository::in_range_film(map<string, string> options, Film* film)
+{
+    if(options.size() == 0)
+        return true;
+    bool flag = true;
+    for (auto &&option : options)
+    {
+        if(option.first == NAME && film->get_name() != option.second)
+            flag = false;
+        if(option.first == "min_rate" && film->get_rate() >= stoi(option.second))
+            flag = false;
+        if(option.first == "min_year" && film->get_year() >= stoi(option.second))
+            flag = false;
+        if(option.first == PRICE && film->get_price() >= stoi(option.second))
+            flag = false;
+        if(option.first == "max_year" && film->get_year() <= stoi(option.second))
+            flag = false;
+        if(option.first == DIRECTOR && film->get_director() != option.second)
+            flag = false;
+    } 
+    return flag;
+}
+
+vector<int> FilmRepository::in_range_films_id(map<string, string> options)
+{
+    vector<int> films_id_to_show;
+    for (int i = 0; i < films.size(); i++)
+        if(in_range_film(options, films[i]))
+            films_id_to_show.push_back(films[i]->get_id());
+    return films_id_to_show;
+}
+
+void FilmRepository::show_films(map<string, string> options)
+{
+    cout << "#. Film Id | Film Name | Film Length | Film price | Rate | Production Year | Film Director\n";
+    vector<int> films_id_to_show = in_range_films_id(options);
+    sort(films_id_to_show.begin(), films_id_to_show.end());
+    for (int i = 0; i < films_id_to_show.size(); i++)
+        cout << i + 1 << ". " << find_film_by_id(films_id_to_show[i])->show() << "\n";
+}
+
+void FilmRepository::show_film_details(int film_id)
+{
+     cout << find_film_by_id(film_id)->show_details();
+}
+
+vector<pair<int, int>> FilmRepository::sort_pairs_by_rate()
+{
+    vector<pair<int, int>> sort_by_rate;
+    for (int i = 0; i < films.size(); i++)
+        sort_by_rate.push_back(pair<int, int> (films[i]->get_rate(), films[i]->get_id()));
+    sort(sort_by_rate.begin(), sort_by_rate.end());
+    return sort_by_rate;
+}
+
+bool FilmRepository::existed(vector<int> bought_films_id, int id)
+{
+    for (int i = 0; i < bought_films_id.size(); i++)
+        if(bought_films_id[i] == id)
+            return true;
+    return false;
+}
+
+void FilmRepository::show_recomend_film(vector<int> bought_films_id, int film_id)
+{
+    cout << "Recommendation Film\n#. Film Id | Film Name | Film Length | Film Director\n";
+    int counter = 1;
+    vector<pair<int, int>> sorted_by_rate = sort_pairs_by_rate();
+    for (int i = 0; i < sorted_by_rate.size(); i++)
+    {
+        if(!existed(bought_films_id, sorted_by_rate[i].second) && counter <= 4 && sorted_by_rate[i].second != film_id)
+        {
+            cout << counter << ". "  << find_film_by_id(sorted_by_rate[i].second)->show_recomend();
+            counter++;
+        }
+    }
+}
+
+vector<int> FilmRepository::get_films_id()
+{
+    vector<int> films_id;
+    for (int i = 0; i < films.size(); i++)
+        films_id.push_back(films[i]->get_id());
+    return films_id;
+}#include "command_handler.h"
+#include <iostream>
+
+using namespace std;
+int main()
+{
+    CommandHandler* netflix = new CommandHandler();
+    netflix->run();
+}#include "network.h"
+#include "exceptions.h"
+#include "publisher.h"
+
+#define DEFAULT_CASH 0
+
+using namespace std;
+
+Network::Network()
+{
+    users = new UserRepository(); 
+    films = new FilmRepository();
+}
+
+User* Network::find_logged_in_user()
+{
+    if(users->find_logged_in_user() == nullptr)
+        throw Inaccessibility();
+    return users->find_logged_in_user();
+}
+
+bool Network::check_existed_user(string username)
+{
+    return users->check_existed_user(username);
+}
+
+void Network::signup(string email, string username, string password, int age, bool publisher)
+{
+    users->signup(email, username, password, age, publisher);
+    cout << "OK\n";
+}
+
+void Network::login(string username, string password)
+{
+    users->login(username, password);
+    cout << "OK\n";
+}
+
+void Network::add_film(string name, int year, int length, int price, string summary, string director)
+{
+    find_logged_in_user()->add_film(films->add_new_film(find_logged_in_user()->get_id(), name, year, length, price, summary, director));
+    cout << "OK\n";
+}
+
+void Network::edit_film(int film_id, map<string, string> edited_options)
+{
+    if(users->check_publisher())
+    {
+        films->edit_film(find_logged_in_user()->get_id(), film_id, edited_options);
+        cout << "OK\n";
+        return;
+    }
+    throw Inaccessibility();
+}
+
+void Network::delete_film(int film_id)
+{
+    if(films->find_film_by_id(film_id) == nullptr)
+        throw NotFound();
+    find_logged_in_user()->delete_film(film_id);
+    films->delete_film(film_id);
+    cout << "OK\n";
+}
+
+void Network::show_followers()
+{
+    find_logged_in_user()->show_followers();
+}
+
+void Network::get_money()
+{
+    find_logged_in_user()->get_money(cash[find_logged_in_user()->get_username()]);
+    cout << "OK\n";
+}
+
+void Network::reply_comment(int film_id, int comment_id, std::string content)
+{
+    find_logged_in_user()->reply_commemt(users->find_user_by_id(films->find_user_id_with_comment_id(film_id, comment_id)), 
+        film_id, comment_id, content);
+    cout << "OK\n";
+}
+
+void Network::delete_comment(int film_id, int comment_id)
+{
+    find_logged_in_user()->delete_comment(film_id, comment_id);
+    cout << "OK\n";
+}
+
+void Network::follow(int publisher_id)
+{
+    users->follow_publisher(publisher_id);
+    cout << "OK\n";
+}
+
+void Network::increase_money(int amount)
+{
+    find_logged_in_user()->increase_money(amount);
+    cout << "OK\n";
+}
+
+void Network::buy_film(int film_id)
+{
+    Film* film = films->find_film_by_id(film_id);
+    users->buy_film(film, users->find_publisher_by_id(film->get_publisher_id()));
+    cash[users->find_publisher_by_id(films->find_film_by_id(film_id)->get_publisher_id())->get_username()] += compute_cash(film_id);
+    cout << "OK\n";
+}
+
+int Network::compute_cash(int film_id)
+{
+    return films->find_film_by_id(film_id)->comput_cahs();
+}
+
+void Network::rate_film(int film_id, int score)
+{
+    find_logged_in_user()->rate_film(film_id, score, users->find_publisher_by_id(films->find_film_by_id(film_id)->get_publisher_id()));
+    cout << "OK\n";
+}
+
+void Network::add_comment(int film_id, string content)
+{
+    
+    find_logged_in_user()->add_comment(film_id, content,users->find_publisher_by_id(films->find_film_by_id(film_id)->get_publisher_id()));
+    cout << "OK\n";
+}
+
+void Network::show_unread_notificatioins()
+{
+    find_logged_in_user()->show_unread_notifications();
+}
+
+void Network::show_notifications(int limit)
+{
+    find_logged_in_user()->show_notifications(limit);
+}
+
+void Network::show_published_film(map<string, string> options)
+{
+    find_logged_in_user()->show_films(options);
+}
+
+void Network::show_bought_films(map<string, string> options)
+{
+    find_logged_in_user()->show_bought_films(options);
+}
+
+void Network::search(map<string, string> options)
+{
+    films->show_films(options);
+}
+
+void Network::show_film_details(int film_id)
+{
+    films->show_film_details(film_id);
+    films->show_recomend_film(find_logged_in_user()->get_bought_films_id(), film_id);
+}#include "notification.h"
+
+using namespace std;
+
+Notification::Notification(string _massage)
+{
+    massage = _massage;
+    read = false;
+}
+
+void Notification::read_massage()
+{
+    read = true;
+}
+
+void Notification::show_massage()
+{
+    cout << massage << endl;
+}
+
+bool Notification::get_read()
+{
+    return read;
+}
+#include "notification_repository.h"
+
+using namespace std;
+
+void NotificationRepository::give_notification(Notification notification)
+{
+    notifications.push_back(notification);
+}
+
+void NotificationRepository::show_unread_notifications()
+{
+    cout << "#. Notification Message\n";
+    for (int i = notifications.size() - 1; i >= 0; i--)
+    {
+        if(!notifications[i].get_read())
+        {
+            cout << to_string(notifications.size() - i) << ". ";
+            notifications[i].read_massage();
+            notifications[i].show_massage();
+        }
+    }
+}
+
+void NotificationRepository::show_notifications(int limit)
+{
+    cout << "#. Notification Message\n";
+    for (int i = notifications.size() - 1; i >= 0; i--)
+    {
+        if(notifications[i].get_read() && limit > 0)
+        {            
+            cout << to_string(notifications.size() - i) << ". ";
+            notifications[i].show_massage();
+            limit--;
+        }
+    }
+}#include "publisher.h"
+#include "exceptions.h"
+
+#define DEFAULT_CASH 0
+
+using namespace std;
+
+Publisher::Publisher(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher)
+ : User(_id, _email, _username, _password, _age, _publisher) 
+{
+}
+
+void Publisher::add_film(Film* new_film)
+{
+    published_films.add_film(new_film);
+    send_film_register_notificatioin();
+}
+
+void Publisher::send_film_register_notificatioin()
+{    
+    Notification new_notif("Publisher " + username + " with id " + to_string(id) + " register new film.");
+    for (int i = 0; i < follower_user.size(); i++)
+        follower_user[i]->give_notification(new_notif);    
+}
+
+void Publisher::delete_film(int film_id)
+{
+    published_films.delete_film(film_id);
+}
+
+void Publisher::show_followers()
+{
+    cout << "List of Followers\n";
+    cout << "#. User Id | User Username | User Email\n";
+    for (int i = 0; i < follower_user.size(); i++)
+    {
+        cout << i + 1 << ". " << follower_user[i]->get_id() << " | ";
+        cout << follower_user[i]->get_username() << " | ";
+        cout << follower_user[i]->get_email() << endl;
+    }
+}
+
+void Publisher::get_money(int money)
+{
+    cash += money;
+}
+
+void Publisher::reply_commemt(User* user, int film_id, int comment_id, string content)
+{
+    published_films.find_film_by_id(film_id)->reply_comment(comment_id, content);
+    send_reply_notification(user);
+}
+
+void Publisher::send_reply_notification(User* user)
+{
+    Notification new_notif("Publisher " + username + " with id " + to_string(id) + " reply to your comment.");
+    user->give_notification(new_notif);
+}
+
+void Publisher::delete_comment(int film_id, int comment_id)
+{
+    published_films.find_film_by_id(film_id)->delete_comment(comment_id);
+}
+
+void Publisher::add_follower(User* new_follower)
+{
+    follower_user.push_back(new_follower);
+}
+
+Film* Publisher::find_published_film(int film_id)
+{
+    return published_films.find_film_by_id(film_id);
+}
+
+void Publisher::show_films(map<string, string> optoins)
+{
+    published_films.show_films(optoins);
+}#include "user.h"
+#include "exceptions.h"
+#include "publisher.h"
+#define DEFAULT_CASH 0
+
+using namespace std;
+
+User::User(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher)
+{
+    email = _email;
+    username = _username;
+    password = _password;
+    age = _age;
+    id = _id;
+    publisher = _publisher;
+    login = true;
+    cash = DEFAULT_CASH;
+}
+
+void User::follow_publisher(Publisher* new_publisher)
+{
+    following_publishers.add_existed_publisher(new_publisher);
+    new_publisher->add_follower(this);
+    send_follow_notification(new_publisher);
+}
+
+void User::send_follow_notification(Publisher* publisher)
+{
+    Notification new_notif("User " + username + " with id " + to_string(id) + " follow you.");
+    publisher->give_notification(new_notif);
+}
+
+void User::give_notification(Notification notification)
+{
+    notifications.give_notification(notification);
+}
+
+void User::buy_film(Film* new_film, Publisher* publisher)
+{
+    bought_films.add_film(new_film);
+    send_buy_notification(publisher, new_film);
+}
+
+void User::send_buy_notification(Publisher* publisher, Film* film)
+{
+    Notification new_notif("User " + username + " with id " + to_string(id) + 
+        " buy your film " + film->get_name() + " with id " + to_string(film->get_id()) + ".");
+    publisher->give_notification(new_notif);
+}
+
+void User::rate_film(int film_id, int score, Publisher* publisher)
+{
+    try
+    {
+        Film* film = bought_films.find_film_by_id(film_id);
+        film->set_rate(score);
+        send_rate_notification(publisher , film);
+    }
+    catch(NotFound e)
+    {
+        throw Inaccessibility();
+    }
+}
+
+void User::send_rate_notification(Publisher* publisher, Film* film)
+{
+    Notification new_notif("User " + username + " with id " + to_string(id) + 
+        " rate your film " + film->get_name() + " with id " + to_string(film->get_id()) + ".");
+    publisher->give_notification(new_notif);
+}
+
+void User::add_comment(int film_id, string content, Publisher* publisher)
+{
+    try
+    {
+        bought_films.find_film_by_id(film_id)->add_comment(content, id);
+        send_comment_notification(publisher, bought_films.find_film_by_id(film_id));
+    }
+    catch(NotFound e)
+    {
+        throw Inaccessibility();
+    }
+}
+
+void User::send_comment_notification(Publisher* publisher, Film* film)
+{
+    Notification new_notif("User " + username + " with id " + to_string(id) + 
+        " comment on your film " + film->get_name() + " with id " + to_string(film->get_id()) + ".");
+    publisher->give_notification(new_notif);
+}
+
+void User::show_unread_notifications()
+{
+    notifications.show_unread_notifications();
+}
+
+void User::show_notifications(int limit)
+{
+    notifications.show_notifications(limit);
+}
+
+void User::increase_money(int amount)
+{
+    cash += amount;
+}
+
+void User::show_bought_films(map<string, string> options)
+{
+    bought_films.show_films(options);
+}
+
+vector<int> User::get_bought_films_id()
+{
+    return bought_films.get_films_id();
+}
+
+string User::get_username()
+{
+    return username;
+}
+
+string User::get_password()
+{
+    return password;
+}
+
+string User::get_email()
+{
+    return email;
+}
+
+int User::get_id()
+{
+    return id;
+}
+
+bool User::check_login()
+{
+    return login;
+}
+
+bool User::check_publsher()
+{
+    return publisher;
+}
+
+void User::logout()
+{
+    login = false;
+}
+
+void User::login_user()
+{
+    login = true;
+}
+
+void User::add_film(Film* new_film)
+{
+    throw Inaccessibility() ;
+}
+
+void User::delete_film(int film_id)
+{
+    throw Inaccessibility();
+}
+
+void User::show_followers()
+{
+    throw Inaccessibility();
+}
+
+void User::get_money(int money)
+{
+    throw Inaccessibility();
+}
+
+void User::reply_commemt(User* user, int film_id, int comment_id, string comtent)
+{
+    throw Inaccessibility();
+}
+
+void User::delete_comment(int film_id, int comment_id)
+{
+    throw Inaccessibility();
+}
+
+void User::add_follower(User* new_follower)
+{
+    throw Inaccessibility();
+}
+
+void User::send_reply_notification(User* user)
+{
+    throw Inaccessibility();
+}
+
+Film* User::find_published_film(int film_id)
+{
+    throw Inaccessibility();
+}
+
+void User::send_film_register_notificatioin()
+{
+    throw Inaccessibility();
+}
+
+void User::show_films(std::map<string, string> optoins)
+{
+    throw Inaccessibility();
+}#include "user_repository.h"
+#include "exceptions.h"
+#include "user.h"
+#include "publisher.h"
+
+using namespace std;
+
+UserRepository::UserRepository()
+{
+    last_id = 0;
+}
+
+bool UserRepository::check_existed_user(string username)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_username() == username)
+            return true;
+    return false;
+}
+
+User* UserRepository::find_user(string username, string password)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_username() == username && users[i]->get_password() == password)
+            return users[i];
+    return nullptr;
+}
+
+User* UserRepository::find_logged_in_user()
+{
+    for (int i = 0; i < users.size(); i++)
+        if (users[i]->check_login())
+            return users[i];
+    return nullptr;
+}
+
+void UserRepository::signup(string email, string username, string password, int age, bool publisher)
+{
+    if(check_existed_user(username))
+        throw BadRequest();
+    last_id++;
+    if(find_logged_in_user() != nullptr)
+        find_logged_in_user()->logout();
+    if(publisher)        
+        add_publisher(email, username, password, age, publisher);
+    User* new_user = new User(last_id,email, username, password, age, publisher);
+    users.push_back(new_user);
+}
+
+void UserRepository::add_publisher(string email, string username, string password, int age, bool publisher)
+{
+    Publisher* new_publisher = new Publisher(last_id, email, username, password, age, publisher);
+    users.push_back(new_publisher);
+}
+
+bool UserRepository::check_publisher()
+{
+    if (find_logged_in_user()->check_publsher())
+        return true;
+    return false;
+}
+
+void UserRepository::login(string username, string password)
+{
+    if(find_user(username, password) == nullptr)
+        throw BadRequest();
+    find_logged_in_user()->logout();
+    find_user(username, password)->login_user();
+}
+
+void UserRepository::follow_publisher(int publisher_id)
+{
+    Publisher* publisher = find_publisher_by_id(publisher_id);
+    find_logged_in_user()->follow_publisher(publisher);
+}
+
+Publisher* UserRepository::find_publisher_by_id(int publisher_id)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_id() == publisher_id && users[i]->check_publsher())
+            return (Publisher*)users[i];
+    throw BadRequest();
+}
+
+void UserRepository::buy_film(Film* new_film, Publisher* publisher)
+{
+    find_logged_in_user()->buy_film(new_film, publisher);
+}
+
+void UserRepository::add_existed_publisher(Publisher* publisher)
+{
+    if(check_existed_user(publisher->get_username()))
+        users.push_back(publisher); 
+}
+
+User* UserRepository::find_user_by_id(int user_id)
+{
+    for (int i = 0; i < users.size(); i++)
+        if(users[i]->get_id() == user_id)
+            return users[i];
+    throw BadRequest();
+}#include "definitions.h"
+#include "validity.h"
+#include <regex>
+
+using namespace std;
+
+Validity::Validity()
+{}
+
+bool Validity::check_correct_input(map<string, string> elements)
+{
+    for(auto& element: elements)
+        if(element.second == SEPERATOR && element.first != PUBLISHER)
+            return false;
+    return true;
+}
+
+bool Validity::signup_validity(map<string, string> elements)
+{
+    return check_correct_input(elements) && check_integer(elements[AGE]) && check_email(elements[EMAIL]) && check_publisher(elements[PUBLISHER]);
+}
+
+bool Validity::add_film_validity(map<string, string> elements)
+{
+    return check_correct_input(elements) && check_integer(elements[YEAR]) && check_integer(elements[LENGTH]) && check_integer(elements[PRICE]);
+}
+
+bool Validity::login_validity(map<string, string> elements)
+{
+    return check_correct_input(elements);
+}
+
+bool Validity::check_integer(string integer)
+{
+    for (int i = 0; i < integer.size(); i++)
+        if(integer[i] > '9' || integer[i] < '0')
+            return false;
+    return true;
+}
+
+bool Validity::check_email(string email)
+{
+    const regex pattern("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
+   return regex_match(email, pattern);
+}
+
+bool Validity::check_publisher(string publisher)
+{
+    if(publisher == "true" || publisher == "false" || publisher == "?")
+        return true;
+    return false;
+}
+
+bool Validity::reply_comment_validitiy(map<string, string> elements)
+{
+    return check_correct_input(elements) && check_integer(elements[FILM_ID]) && check_integer(elements[COMMENT_ID]);
+}
+
+bool Validity::check_edit_film_validity(string id, map<string, string> elements)
+{
+    bool flag = true; 
+    for(auto& element: elements)
+        if(element.first == YEAR || element.first == LENGTH)
+            flag = check_integer(element.second);
+    return check_integer(id) && flag && check_correct_input(elements);
+}
+
+bool Validity::show_film_validity(map<string, string> elements)
+{
+    bool flag = true;
+    for(auto& element: elements)
+        if(element.first == "min_year" || element.first == "max_year" || element.first == PRICE || element.first == "min_rate")
+            flag = check_integer(element.second);
+    return flag && check_correct_input(elements);
+}#ifndef COMMAND_H
+#define COMMAND_H
+
+#include <iostream>
+#include <vector>
+#include "definitions.h"
+#include "network.h"
+#include "validity.h"
+
+typedef std::vector<std::string> string_list;
+
+class CommandHandler
+{
+public:
+    CommandHandler();
+    string_list split_string(std::string input);
+    void reply_comment();
+    void follow();
+    void run();
+    void edit_film();
+    void increase_money();
+    void post_money();
+    void rate_film();
+    void buy_film();
+    void detect_instruction_methode();
+    void post_methode_instructions();
+    void get_methode_instructions();
+    void put_methode_instructions();
+    void delete_methode_instructions();
+    void signup();
+    void login();
+    void add_comment();
+    void add_film();
+    void delete_film();
+    void delete_comment();
+    void show_films(std::string type);
+    void show_notifications();
+    int find_optional_index(std::string key);
+    int find_index(std::string key);
+    bool check_publisher(std::string publisher);
+    bool show_details();
+    bool show_all(std::map<std::string, std::string> elements, std::string type);
+private:
+    Network* network;
+    string_list input;
+    Validity valid;
+};
+
+#endif#ifndef COMMENT_H
+#define COMMENT_H
+
+#include <iostream>
+#include "notification.h"
+
+class Comment
+{
+public:
+    Comment(int _id, std::string _content, int _user_id);
+    int get_id();
+    int get_user_id();
+    void reply_content(std::string content);
+    std::string get_content();
+    std::string get_reply();
+private:
+    int id;
+    int user_id;
+    std::string content;
+    std::string reply;
+};
+
+#endif#ifndef COMMENT_REPOS_H
+#define COMMENT_REPOS_H
+
+#include "comment.h"
+#include <vector>
+
+class CommentRepository
+{
+public:
+    CommentRepository();
+    Comment* find_comment_by_id(int commetn_id);
+    int find_user_id_with_comment_id(int comment_id);
+    int find_comment_index(int comment_id);
+    void delete_comment(int comment_id);
+    void add_comment(std::string content, int user_id);
+    std::string show_comments();
+private:
+    int last_id;
+    std::vector<Comment*> comments;
+};
+
+#endif#ifndef DEF_H
+#define DEF_H
+
+#define INSTRUCTION_TYPE_INDEX 0
+#define INSTRUCTION_ACTION_INDEX 1
+#define INSTRUCTION_SEPERATOR_INDEX 2
+#define RECOM_NUM 4
+#define POST "POST"
+#define DELETE "DELETE"
+#define GET "GET"
+#define PUT "PUT"
+#define SEPERATOR "?"
+#define LOGIN "login"
+#define SIGNUP "signup"
+#define FILMS "films"
+#define NAME "name"
+#define YEAR "year"
+#define LENGTH "length"
+#define PRICE "price"
+#define SUMMARY "summary"
+#define DIRECTOR "director"
+#define PASS "password"
+#define USERNAME "username"
+#define AGE "age"
+#define PUBLISHER "publisher"
+#define EMAIL "email"
+#define MONEY "money"
+#define REPLIES "replies"
+#define FILM_ID "film_id"
+#define COMMENT_ID "comment_id"
+#define CONTENT "content"
+#define FOLLOWERS "followers"
+#define USER_ID "user_id"
+#define AMOUNT "amount"
+#define BUY "buy"
+#define FILM_ID "film_id"
+#define RATE "rate"
+#define SCORE "score"
+#define COMMENTS "comments"
+#define EMPTY "empty"
+#define PUBLISHED "published"
+#define PURCHASED "purchased"
+#define NOTIFICATIONS "notifications"
+#endif#ifndef EXCEPTION_H
+#define EXCEPTION_H
+
+#include <iostream>
+
+class NotFound  : public std::exception
+{
+public:
+    virtual std::string what();
+};
+
+class BadRequest : public std::exception
+{
+public:
+    virtual std::string what();
+};
+
+class Inaccessibility : public std::exception
+{
+public:
+    virtual std::string what();
+};
+
+#endif#ifndef FILM_H
+#define FILM_H
+
+#include <map>
+#include "comment.h"
+#include "notification.h"
+#include "comment_repository.h"
+
+class Film
+{
+public:
+    Film(int _publisher_id, int _id, std::string _name, int _year, int _length, int price, std::string _suumary, std::string _director);
+    std::string get_name();
+    std::string get_summary();
+    std::string get_director();
+    std::string show();
+    int get_year();
+    int comput_cahs();
+    int get_id();
+    int get_length();
+    int get_price();
+    int get_publisher_id();
+    int get_rate();
+    int find_user_id_with_comment_id(int comment_id);
+    std::string show_details();
+    std::string show_recomend();
+    void add_comment(std::string content, int user_id);
+    void set_rate(int score);
+    void delete_comment(int comment_id);
+    void reply_comment(int comment_id, std::string content);
+    void edit(std::map<std::string, std::string> edited_options);
+    void edit_fields(std::string key, std::string value);
+private:
+    std::string name;
+    std::string summary;
+    std::string director;
+    int year;
+    int id;
+    int publisher_id;
+    double score;
+    int length;
+    int price;
+    int rate_count;
+    CommentRepository comments;
+};
+
+#endif#ifndef FILM_REPOS_H
+#define FILM_REPOS_H
+
+#include "film.h"
+#include <iostream>
+
+class FilmRepository
+{
+public:
+    FilmRepository();
+    Film* add_new_film(int publisher_id, std::string name, int year, int length, int price, std::string summary, std::string director);
+    void add_film(Film* film);
+    void edit_film(int publisher_id, int film_id, std::map<std::string, std::string> edited_options);
+    void delete_film(int film_id);
+    void show_films(std::map<std::string, std::string> optiions);
+    void show_film_details(int film_id);
+    void show_recomend_film(std::vector<int> bought_films_id, int film_id);
+    std::vector<std::pair<int, int>> sort_pairs_by_rate();
+    std::vector<int> in_range_films_id(std::map<std::string, std::string> optiions);
+    std::vector<int> get_films_id();
+    bool in_range_film(std::map<std::string, std::string> optiions, Film* film);
+    bool check_film_exists(int film_id);
+    bool existed(std::vector<int> bought_films_id, int id);
+    int find_user_id_with_comment_id(int film_id, int comment_id);
+    Film* find_film_by_id(int film_id);
+private:
+    int last_id;
+    std::vector<Film*> films;
+};
+
+#endif #ifndef NETWORK_H
+#define NETWORK_H
+
+#include <vector>
+#include <map>
+#include "user.h"
+#include "user_repository.h"
+#include "film_repository.h"
+
+class Network
+{
+public:
+    Network();  
+    void signup(std::string email, std::string username, std::string password, int age, bool publisher);
+    void login(std::string username, std::string pasword);
+    void add_film(std::string name, int year, int length, int price, std::string summary, std::string director);
+    void edit_film(int film_id, std::map<std::string, std::string> edited_options);
+    void delete_film(int film_id);
+    void follow(int publisher_id);
+    void buy_film(int film_id);
+    void show_followers();
+    void show_film_details(int film_id);
+    void get_money();
+    void search(std::map<std::string, std::string> options);
+    void add_comment(int film_id, std::string content);
+    void rate_film(int film_id, int score);
+    void increase_money(int amount);
+    void reply_comment(int film_id, int comment_id, std::string content);
+    void delete_comment(int film_id, int comment_id);
+    void show_unread_notificatioins();
+    void show_notifications(int limit);
+    void show_published_film(std::map<std::string, std::string> options);
+    void show_bought_films(std::map<std::string, std::string> options);
+    int compute_cash(int film_id);
+    bool check_existed_user(std::string username);
+    User* find_logged_in_user();
+private:
+    UserRepository* users;    
+    FilmRepository* films;
+    std::map<std::string, int> cash;
+};
+
+#endif#ifndef NOTIF_H
+#define NOTIF_H
+
+#include <iostream>
+
+class Notification
+{
+public:
+    Notification(std::string _massage);
+    bool get_read();
+    void show_massage();
+    void read_massage();
+private:
+    std::string massage;
+    bool read;
+};
+
+#endif#ifndef NOTIF_REPOS_H
+#define NOTIF_REPOS_H
+
+#include "notification.h"
+#include <vector>
+
+class NotificationRepository
+{
+public:
+    NotificationRepository() {};
+    void give_notification(Notification notification);
+    void show_unread_notifications();
+	void show_notifications(int limit);
+private:
+    std::vector<Notification> notifications;
+};
+
+#endif#ifndef PUBLISHER_H
+#define PUBLISHER_H
+
+#include "user.h"
+#include "film_repository.h"
+
+
+class Publisher : public User
+{
+public:
+    Publisher(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher);
+    virtual void add_follower(User* new_follower);
+    virtual void send_reply_notification(User* user);
+    virtual void add_film(Film* new_film);
+    virtual void delete_film(int film_id);
+    virtual void show_followers();
+    virtual Film* find_published_film(int film_id);
+    virtual void send_film_register_notificatioin();
+    virtual void show_films(std::map<std::string, std::string> optoins);
+    virtual void get_money(int money);
+    virtual void delete_comment(int film_id, int comment_id);
+    virtual void reply_commemt(User* user, int film_id, int comment_id, std::string content);
+private:
+    std::vector<User*> follower_user;
+    FilmRepository published_films;
+};
+
+#endif#ifndef USER_H
+#define USER_H
+
+#include <iostream>
+#include <vector>
+#include "film.h"
+#include "user_repository.h"
+#include "film_repository.h"
+#include "notification_repository.h"
+
+class User
+{
+public:
+	User(int _id, std::string _email, std::string _username, std::string _password, int _age, bool _publisher);
+	std::string get_username();
+	std::string get_password();
+	std::string get_email();
+	std::vector<int> get_bought_films_id();
+	int get_id();
+	bool check_login();
+	bool check_publsher();
+	void logout();
+	void login_user();
+	void give_notification(Notification notification); 
+	void show_unread_notifications();
+	void show_notifications(int limit);
+	void show_bought_films(std::map<std::string, std::string> options);
+	void follow_publisher(Publisher* new_pubisher);
+	void increase_money(int amount);
+	void buy_film(Film* neW_film, Publisher* publisher);
+	void rate_film(int film_id, int score, Publisher* publisher);
+	void add_comment(int film_id, std::string content, Publisher* publisher);
+	void send_comment_notification(Publisher* publisher, Film* film);
+	void send_follow_notification(Publisher* publisher);
+	void send_buy_notification(Publisher* publisher, Film* film);
+	void send_rate_notification(Publisher* publisher, Film* film);
+	virtual void add_follower(User* new_follower);
+	virtual void send_reply_notification(User* user);
+	virtual void delete_comment(int film_id, int comment_id);
+	virtual void add_film(Film* new_film);
+    virtual void delete_film(int film_id);
+    virtual void show_followers();
+	virtual Film* find_published_film(int film_id);
+    virtual void show_films(std::map<std::string, std::string> optoins);
+	virtual void send_film_register_notificatioin();
+    virtual void get_money(int money);
+    virtual void reply_commemt(User* user, int film_id, int comment_id, std::string content);
+protected:
+	std::string username;
+	std::string password;
+	std::string email;
+	int id;
+	bool login;
+	bool publisher;
+	int cash;
+	int age;
+	FilmRepository bought_films;
+	NotificationRepository notifications; 
+	UserRepository following_publishers;
+};
+
+#endif#ifndef USER_REPOS_H
+#define USER_REPOS_H
+
+#include <iostream>
+#include <vector>
+#include "film.h"
+
+class User;
+
+class Publisher;
+
+class UserRepository
+{
+public:
+    UserRepository();
+    void signup(std::string email, std::string username, std::string password, int age, bool publisher);
+    void add_publisher(std::string email, std::string username, std::string password, int age, bool publisher);
+    void add_existed_publisher(Publisher* publisher);
+    void follow_publisher(int publisher_id);
+    void login(std::string username, std::string pasword);
+    void buy_film(Film* new_film, Publisher* publisher);
+    bool check_existed_user(std::string username);
+    bool check_publisher();
+    Publisher* find_publisher_by_id(int user_id);
+    User* find_user(std::string username, std::string password);
+    User* find_logged_in_user();
+    User* find_user_by_id(int user_id);
+private:
+    int last_id;
+    std::vector<User*> users;    
+};
+
+#endif#ifndef VALID_H
+#define VALID_H
+
+#include <iostream>
+#include <map>
+
+class Validity
+{
+public:
+    Validity();
+    bool check_integer(std::string integer);
+    bool check_email(std::string email);
+    bool check_publisher(std::string input);
+    bool show_film_validity(std::map<std::string, std::string> elements);
+    bool check_edit_film_validity(std::string id, std::map<std::string, std::string> elements);
+    bool reply_comment_validitiy(std::map<std::string, std::string> elements);
+    bool signup_validity(std::map<std::string, std::string> elements);
+    bool add_film_validity(std::map<std::string, std::string> elements);
+    bool login_validity(std::map<std::string, std::string> elements);
+    bool check_correct_input(std::map<std::string, std::string> elements);
+private:  
+};
+
+#endif
